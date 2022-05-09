@@ -15,7 +15,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	config2 "tunn/config"
+	"tunn/config"
 	"tunn/config/protocol"
 	"tunn/transmitter"
 	"tunn/utils/timer"
@@ -44,13 +44,13 @@ type AuthClientV3 struct {
 // @return err
 //
 func NewClientV3(handler AuthClientHandler) (client *AuthClientV3, err error) {
-	if config2.Current.Security.CertPem == "" {
+	if config.Current.Security.CertPem == "" {
 		return nil, ErrCertFileNotFound
 	}
-	address := strings.Join([]string{config2.Current.Auth.Address, strconv.Itoa(config2.Current.Auth.Port)}, ":")
+	address := strings.Join([]string{config.Current.Auth.Address, strconv.Itoa(config.Current.Auth.Port)}, ":")
 	log.Info("connect to authentication server : ", address)
 	pool := x509.NewCertPool()
-	ca, err := ioutil.ReadFile(config2.Current.Security.CertPem)
+	ca, err := ioutil.ReadFile(config.Current.Security.CertPem)
 	if err != nil {
 		return nil, log.Error("cannot load cert : ", err)
 	}
@@ -170,7 +170,7 @@ func (c *AuthClientV3) onLogin(reply *AuthReply) error {
 	if err != nil {
 		return err
 	}
-	if config2.Current.Global.DefaultRoute {
+	if config.Current.Global.DefaultRoute {
 		if cidr, ok := data["gateway"]; ok && cidr != "" {
 			ip, _, err := net.ParseCIDR(cidr)
 			if err != nil {
@@ -186,20 +186,20 @@ func (c *AuthClientV3) onLogin(reply *AuthReply) error {
 		}
 	}
 	//当ws时接收ws_key
-	if config2.Current.Global.Protocol == protocol.WS || config2.Current.Global.Protocol == protocol.WSS {
+	if config.Current.Global.Protocol == protocol.WS || config.Current.Global.Protocol == protocol.WSS {
 		if wskey, ok := data["ws_key"]; ok && wskey != "" {
 			c.WSKey = wskey
 		}
 	}
 	if routes, ok := data["route"]; ok && routes != "" {
-		var rs []config2.Route
+		var rs []config.Route
 		err := json.Unmarshal([]byte(routes), &rs)
 		if err != nil {
 			_ = log.Warn("failed to recv route info")
 		} else {
 			//merge to local
 			//TODO 合入路由表去重
-			config2.Current.Routes = append(config2.Current.Routes, rs...)
+			config.Current.Routes = append(config.Current.Routes, rs...)
 		}
 	}
 	if key, ok := data["key"]; ok && key != "" {
@@ -212,7 +212,7 @@ func (c *AuthClientV3) onLogin(reply *AuthReply) error {
 	}
 	if cidr, ok := data["cidr"]; ok {
 		log.Info("address allocated : ", cidr)
-		config2.Current.Device.CIDR = cidr
+		config.Current.Device.CIDR = cidr
 	} else {
 		return errors.New("failed to get a address : " + data["error"])
 	}
@@ -229,7 +229,7 @@ func (c *AuthClientV3) Logout() error {
 	if !c.login {
 		return nil
 	}
-	configBytes, err := json.Marshal(config2.Current)
+	configBytes, err := json.Marshal(config.Current)
 	if err != nil {
 		return ErrAuthBadPacket
 	}
@@ -275,7 +275,7 @@ func (c *AuthClientV3) onKick(reply AuthReply) {
 // @return err
 //
 func (c *AuthClientV3) Login() (err error) {
-	configBytes, err := json.Marshal(config2.Current)
+	configBytes, err := json.Marshal(config.Current)
 	if err != nil {
 		return ErrAuthBadPacket
 	}
