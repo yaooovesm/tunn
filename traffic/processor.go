@@ -130,7 +130,7 @@ func (fp *FlowProcessors) Register(processor FlowProcessor, name string) {
 		node.Last = fp.tail
 		fp.tail = node
 	}
-	log.Info("[", fp.Name, "][fp:", name, "] register success")
+	log.Debug("[", fp.Name, "][fp:", name, "] register success")
 }
 
 //
