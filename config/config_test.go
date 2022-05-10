@@ -14,3 +14,43 @@ func TestLoad(t *testing.T) {
 	}
 	fmt.Println(string(marshal))
 }
+
+func TestConfigRead(t *testing.T) {
+	cfg := Config{
+		Global: Global{
+			Tunnel: Tunnel{
+				Address:  "",
+				Port:     0,
+				Protocol: "",
+			},
+			MTU:          0,
+			Pprof:        0,
+			DefaultRoute: false,
+			MultiConn:    0,
+		},
+		User: User{
+			Account:  "",
+			Password: "",
+		},
+		Routes: []Route{},
+		Device: Device{
+			CIDR: "",
+			DNS:  "",
+		},
+		Auth: Auth{
+			Address: "",
+			Port:    0,
+		},
+		DataProcess: DataProcess{
+			CipherType: "",
+		},
+		Security: Security{
+			CertPem: "",
+		},
+	}
+	marshal, err := json.Marshal(cfg)
+	if err != nil {
+		return
+	}
+	fmt.Println(string(marshal))
+}

@@ -34,7 +34,6 @@ type Global struct {
 	Tunnel
 	MTU          int  `json:"mtu"`
 	Pprof        int  `json:"pprof"`
-	Restart      bool `json:"restart"`
 	DefaultRoute bool `json:"default_route"`
 	MultiConn    int  `json:"multi_connection"`
 }
@@ -86,10 +85,27 @@ func (cfg *Config) SetDefaultValue() {
 // @receiver cfg
 //
 func (cfg *Config) Check() {
-	if cfg.Global.Protocol == protocol.WSS || cfg.Global.Protocol == protocol.WS {
-		log.Info("protocol ", cfg.Global.Protocol, " : multi_connection reset to 1")
-		cfg.Global.MultiConn = 1
-	}
+	//if cfg.Global.Protocol == protocol.WSS || cfg.Global.Protocol == protocol.WS {
+	//	log.Info("protocol ", cfg.Global.Protocol, " : multi_connection reset to 1")
+	//	cfg.Global.MultiConn = 1
+	//}
+}
+
+//
+// MergePushed
+// @Description:
+// @receiver cfg
+// @param push
+//
+func (cfg *Config) MergePushed(push PushedConfig) {
+	cfg.Global.Address = push.Global.Address
+	cfg.Global.Protocol = push.Global.Protocol
+	cfg.Global.Port = push.Global.Port
+	cfg.Global.MultiConn = push.Global.MultiConnection
+	cfg.Global.MTU = push.Global.Mtu
+	cfg.Routes = push.Routes
+	cfg.Device = push.Device
+	cfg.DataProcess.CipherType = push.DataProcess.CipherType
 }
 
 //
