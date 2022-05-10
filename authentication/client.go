@@ -199,7 +199,6 @@ func (c *AuthClientV3) onLogin(reply *AuthReply) error {
 		//marshal, _ := json.Marshal(pushedConfig)
 		//fmt.Println("recv config --> ", string(marshal))
 		//覆盖配置到本地
-		//TODO 处理路由表
 		config.Current.MergePushed(pushedConfig)
 		//marshal, _ = json.Marshal(config.Current)
 		//fmt.Println("local config --> ", string(marshal))

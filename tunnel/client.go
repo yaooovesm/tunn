@@ -12,6 +12,7 @@ import (
 	"tunn/config"
 	"tunn/config/protocol"
 	"tunn/device"
+	"tunn/networking"
 	"tunn/traffic"
 	"tunn/transmitter"
 	"tunn/utils/timer"
@@ -41,6 +42,7 @@ type Client struct {
 	handler          ClientConnHandler
 	running          bool
 	txHandlerRunning bool
+	SysRouteTable    *networking.SystemRouteTable
 }
 
 //
@@ -147,6 +149,8 @@ func (c *Client) Start() error {
 		if err != nil {
 			return err
 		}
+		//注册系统路由表
+		c.SysRouteTable = networking.NewSystemRouteTable(dev.Name())
 		c.IFace = dev
 	} else {
 		//客户端可能重置网卡IP
@@ -155,6 +159,11 @@ func (c *Client) Start() error {
 			return err
 		}
 	}
+	//更新系统路由表
+	c.SysRouteTable.Merge(config.Current.Routes)
+	c.SysRouteTable.DeployAll()
+
+	//初始化完成
 	c.handler.AfterInitialize(c)
 	for i := 0; i < c.size; i++ {
 		conn, err := c.handler.CreateAndSetup(c.Address, c.Config)
