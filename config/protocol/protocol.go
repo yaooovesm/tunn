@@ -26,6 +26,21 @@ const (
 )
 
 //
+// ToString
+// @Description:
+// @receiver n
+// @return string
+//
+func (n Name) ToString() string {
+	for s := range enum {
+		if enum[s] == n {
+			return s
+		}
+	}
+	return ""
+}
+
+//
 // FromString
 // @Description:
 // @param str
