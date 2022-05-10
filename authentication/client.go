@@ -9,14 +9,11 @@ import (
 	log "github.com/cihub/seelog"
 	"github.com/gorilla/websocket"
 	"io/ioutil"
-	"net"
 	"net/url"
-	"os/exec"
 	"strconv"
 	"strings"
 	"time"
 	"tunn/config"
-	"tunn/config/protocol"
 	"tunn/transmitter"
 	"tunn/utils/timer"
 )
@@ -170,38 +167,55 @@ func (c *AuthClientV3) onLogin(reply *AuthReply) error {
 	if err != nil {
 		return err
 	}
-	if config.Current.Global.DefaultRoute {
-		if cidr, ok := data["gateway"]; ok && cidr != "" {
-			ip, _, err := net.ParseCIDR(cidr)
-			if err != nil {
-				_ = log.Warn("set default_route failed : ", err)
-			} else {
-				cmd := exec.Command("/sbin/route", "add", "default", "gw", ip.String(), c.handler.GetDevice().Name())
-				if err := cmd.Run(); err != nil {
-					_ = log.Warn(" set default_route failed : ", err.Error())
-				} else {
-					log.Info("set default_route succeed : default gw -> ", ip.String())
-				}
-			}
-		}
+	//TODO default route
+	//if config.Current.Global.DefaultRoute {
+	//	if cidr, ok := data["gateway"]; ok && cidr != "" {
+	//		ip, _, err := net.ParseCIDR(cidr)
+	//		if err != nil {
+	//			_ = log.Warn("set default_route failed : ", err)
+	//		} else {
+	//			cmd := exec.Command("/sbin/route", "add", "default", "gw", ip.String(), c.handler.GetDevice().Name())
+	//			if err := cmd.Run(); err != nil {
+	//				_ = log.Warn(" set default_route failed : ", err.Error())
+	//			} else {
+	//				log.Info("set default_route succeed : default gw -> ", ip.String())
+	//			}
+	//		}
+	//	}
+	//}
+	//接收ws_key
+	if wskey, ok := data["ws_key"]; ok && wskey != "" {
+		c.WSKey = wskey
 	}
-	//当ws时接收ws_key
-	if config.Current.Global.Protocol == protocol.WS || config.Current.Global.Protocol == protocol.WSS {
-		if wskey, ok := data["ws_key"]; ok && wskey != "" {
-			c.WSKey = wskey
-		}
-	}
-	if routes, ok := data["route"]; ok && routes != "" {
-		var rs []config.Route
-		err := json.Unmarshal([]byte(routes), &rs)
+	if cfg, ok := data["config"]; ok && cfg != "" {
+		pushedConfig := config.PushedConfig{}
+		err := json.Unmarshal([]byte(cfg), &pushedConfig)
 		if err != nil {
-			_ = log.Warn("failed to recv route info")
-		} else {
-			//merge to local
-			//TODO 合入路由表去重
-			config.Current.Routes = append(config.Current.Routes, rs...)
+			return errors.New("failed to fetch config")
 		}
+		if pushedConfig.Device.CIDR == "" {
+			return errors.New("failed to get a address")
+		}
+		//marshal, _ := json.Marshal(pushedConfig)
+		//fmt.Println("recv config --> ", string(marshal))
+		//覆盖配置到本地
+		//TODO 处理路由表
+		config.Current.MergePushed(pushedConfig)
+		//marshal, _ = json.Marshal(config.Current)
+		//fmt.Println("local config --> ", string(marshal))
 	}
+	//不再单独接收路由表 统一接收自config
+	//if routes, ok := data["route"]; ok && routes != "" {
+	//	var rs []config.Route
+	//	err := json.Unmarshal([]byte(routes), &rs)
+	//	if err != nil {
+	//		_ = log.Warn("failed to recv route info")
+	//	} else {
+	//		//merge to local
+	//
+	//		config.Current.Routes = append(config.Current.Routes, rs...)
+	//	}
+	//}
 	if key, ok := data["key"]; ok && key != "" {
 		keyBytes, err := hex.DecodeString(key)
 		if err != nil {
@@ -210,12 +224,13 @@ func (c *AuthClientV3) onLogin(reply *AuthReply) error {
 		c.PublicKey = keyBytes
 		log.Info("receive ", len(c.PublicKey), " bytes key from server")
 	}
-	if cidr, ok := data["cidr"]; ok {
-		log.Info("address allocated : ", cidr)
-		config.Current.Device.CIDR = cidr
-	} else {
-		return errors.New("failed to get a address : " + data["error"])
-	}
+	//不再单独接收分配地址
+	//if cidr, ok := data["cidr"]; ok {
+	//	log.Info("address allocated : ", cidr)
+	//	config.Current.Device.CIDR = cidr
+	//} else {
+	//	return errors.New("failed to get a address : " + data["error"])
+	//}
 	return nil
 }
 

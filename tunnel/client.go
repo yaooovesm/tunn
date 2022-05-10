@@ -9,7 +9,8 @@ import (
 	"strings"
 	"time"
 	"tunn/authentication"
-	config2 "tunn/config"
+	"tunn/config"
+	"tunn/config/protocol"
 	"tunn/device"
 	"tunn/traffic"
 	"tunn/transmitter"
@@ -22,7 +23,7 @@ import (
 //
 type Client struct {
 	IFace            device.Device
-	Config           config2.Config
+	Config           config.Config
 	Context          context.Context
 	Cancel           context.CancelFunc
 	Error            error
@@ -47,26 +48,19 @@ type Client struct {
 // @Description: 持久化多连接接模型
 // @return *TCPClientV3
 //
-func NewClient(handler ClientConnHandler) *Client {
-	size := config2.Current.Global.MultiConn
-	if size <= 0 {
-		size = 1
-	}
-	if size > 32 {
-		size = 32
-	}
-	log.Info("multi_connection set to ", size)
+func NewClient() *Client {
+	size := config.Current.Global.MultiConn
+	log.Info("multi connection size : ", size)
 	return &Client{
 		IFace:            nil,
-		Config:           config2.Current,
+		Config:           config.Current,
 		Error:            nil,
 		size:             size,
 		tunnelIndex:      0,
 		maxIndex:         size - 1, // size -1
 		multiConn:        nil,
-		mtu:              config2.Current.Global.MTU,
+		mtu:              config.Current.Global.MTU,
 		version:          transmitter.V2,
-		handler:          handler,
 		running:          false,
 		txHandlerRunning: false,
 	}
@@ -79,8 +73,6 @@ func NewClient(handler ClientConnHandler) *Client {
 // @return error
 //
 func (c *Client) Init() error {
-	//preprocess Address
-	c.Address = strings.Join([]string{c.Config.Global.Address, strconv.Itoa(c.Config.Global.Port)}, ":")
 	//rx flow processor
 	c.RxFP = traffic.NewFlowProcessor()
 	c.RxFP.Name = "client_rx"
@@ -104,7 +96,7 @@ func (c *Client) Init() error {
 //
 func (c *Client) Start() error {
 	//update key
-	config2.GenerateCipherKey()
+	config.GenerateCipherKey()
 	//multi conn
 	c.multiConn = transmitter.NewMultiConn("client")
 	//context
@@ -112,7 +104,6 @@ func (c *Client) Start() error {
 	c.Context = ctx
 	c.Cancel = cancelFunc
 	//auth
-	//client, err := authentication.NewClientV2(c.Config.Auth, &AuthClientHandler{Client: c})
 	clientV3, err := authentication.NewClientV3(&AuthClientHandler{Client: c})
 	if err != nil {
 		return err
@@ -123,6 +114,28 @@ func (c *Client) Start() error {
 	if err != nil {
 		return err
 	}
+	//验证服务器登录后覆盖本地配置需要重新载入
+	//重新载入配置
+	c.Config = config.Current
+	c.mtu = config.Current.Global.MTU
+	//preprocess Address
+	c.Address = strings.Join([]string{c.Config.Global.Address, strconv.Itoa(c.Config.Global.Port)}, ":")
+
+	//设置传输协议
+	switch c.Config.Global.Protocol {
+	case protocol.TCP:
+		c.handler = &TCPClientHandler{}
+	case protocol.KCP:
+		c.handler = &KCPClientHandler{}
+	case protocol.WS:
+		c.handler = &WSClientHandler{}
+	case protocol.WSS:
+		c.handler = &WSSClientHandler{}
+	default:
+		return errors.New("unsupported protocol : " + string(c.Config.Global.Protocol))
+	}
+	log.Info("transmit protocol : ", c.Config.Global.Protocol.ToString())
+
 	//get interface cidr address after login
 	//iface
 	if c.IFace == nil {
@@ -137,7 +150,7 @@ func (c *Client) Start() error {
 		c.IFace = dev
 	} else {
 		//客户端可能重置网卡IP
-		err := c.IFace.OverwriteCIDR(config2.Current.Device.CIDR)
+		err := c.IFace.OverwriteCIDR(config.Current.Device.CIDR)
 		if err != nil {
 			return err
 		}
@@ -160,6 +173,8 @@ func (c *Client) Start() error {
 	if !c.txHandlerRunning {
 		go c.TXHandler()
 	}
+	log.Info("connected to the server successfully!")
+	log.Info("your ip address is ", config.Current.Device.CIDR, ".")
 	select {
 	case <-c.Context.Done():
 		c.running = false
