@@ -7,7 +7,7 @@ import (
 	"net"
 	"os/exec"
 	"strconv"
-	config2 "tunn/config"
+	"tunn/config"
 	"tunn/networking"
 )
 
@@ -17,7 +17,7 @@ import (
 //
 type TunDevice struct {
 	iface         tun.Device
-	config        config2.Device
+	config        config.Device
 	cidr          string
 	mtu           int
 	clearCIDRFunc func()
@@ -47,7 +47,7 @@ func (d *TunDevice) Name() string {
 // @param config
 // @return error
 //
-func (d *TunDevice) Create(config config2.Config) error {
+func (d *TunDevice) Create(config config.Config) error {
 	dev, err := tun.CreateTUN(DefaultTunDeviceName, config.Global.MTU)
 	if err != nil {
 		return err
@@ -76,9 +76,9 @@ func (d *TunDevice) Setup() error {
 	if err != nil {
 		return err
 	}
-	routes := config2.Current.Routes
+	routes := config.Current.Routes
 	for i := range routes {
-		if routes[i].Option == config2.RouteOptionImport {
+		if routes[i].Option == config.RouteOptionImport {
 			log.Info("import route : ", routes[i].Network)
 			networking.AddSystemRoute(routes[i].Network, d.Name())
 		}

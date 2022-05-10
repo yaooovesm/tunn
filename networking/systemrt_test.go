@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"testing"
 	"time"
-	config2 "tunn/config"
+	"tunn/config"
 	"tunn/device"
 )
 
 func TestSystemrt(t *testing.T) {
-	dev, err := device.NewTunDeviceWithConfig(config2.Config{
-		Global: config2.Global{MTU: 1500},
-		Device: config2.Device{
+	dev, err := device.NewTunDeviceWithConfig(config.Config{
+		Global: config.Global{MTU: 1500},
+		Device: config.Device{
 			CIDR: "10.0.0.77/24",
 			DNS:  "223.5.5.5",
 		},

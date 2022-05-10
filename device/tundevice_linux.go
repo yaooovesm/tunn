@@ -6,7 +6,7 @@ import (
 	"github.com/songgao/water"
 	"os/exec"
 	"strconv"
-	config2 "tunn/config"
+	"tunn/config"
 	"tunn/networking"
 )
 
@@ -16,7 +16,7 @@ import (
 //
 type TunDevice struct {
 	iface         *water.Interface
-	config        config2.Device
+	config        config.Device
 	mtu           int
 	cidr          string
 	clearCIDRFunc func()
@@ -42,7 +42,7 @@ func (d *TunDevice) Name() string {
 // @param config
 // @return error
 //
-func (d *TunDevice) Create(config config2.Config) error {
+func (d *TunDevice) Create(config config.Config) error {
 	dev, err := water.New(water.Config{
 		DeviceType: water.TUN,
 		PlatformSpecificParams: water.PlatformSpecificParams{
@@ -80,9 +80,9 @@ func (d *TunDevice) Setup() error {
 	if err != nil {
 		return err
 	}
-	routes := config2.Current.Routes
+	routes := config.Current.Routes
 	for i := range routes {
-		if routes[i].Option == config2.RouteOptionImport {
+		if routes[i].Option == config.RouteOptionImport {
 			log.Info("import route : ", routes[i].Network)
 			networking.AddSystemRoute(routes[i].Network, d.Name())
 		}
