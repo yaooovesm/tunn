@@ -40,5 +40,5 @@ func GenerateCipherKey() {
 	key = append(key, p1.Bytes()...)
 	key = append(key, p2.Bytes()...)
 	Current.DataProcess.Key = key
-	log.Info("[cipher:", len(key), "] update key")
+	log.Debug("[cipher:", len(key), "] update key")
 }

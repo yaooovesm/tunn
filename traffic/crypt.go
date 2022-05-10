@@ -35,7 +35,7 @@ func GetEncryptFP(cfg config.DataProcess, key []byte) FlowProcessor {
 			_ = log.Warn("initialize crypt[", cfg.CipherType, "] failed ", err)
 			return nil
 		}
-		log.Info("set encrypt cipher [", cfg.CipherType, "]")
+		log.Debug("set encrypt cipher [", cfg.CipherType, "]")
 		return NewBlockEncryptFP(crypt)
 	case config.CipherTypeXOR:
 		crypt, err := kcp.NewSimpleXORBlockCrypt(key)
@@ -43,7 +43,7 @@ func GetEncryptFP(cfg config.DataProcess, key []byte) FlowProcessor {
 			_ = log.Warn("initialize crypt[", cfg.CipherType, "] failed ", err)
 			return nil
 		}
-		log.Info("set encrypt cipher [", cfg.CipherType, "]")
+		log.Debug("set encrypt cipher [", cfg.CipherType, "]")
 		return NewBlockEncryptFP(crypt)
 	case config.CipherTypeTEA:
 		crypt, err := kcp.NewTEABlockCrypt(key[:16])
@@ -51,7 +51,7 @@ func GetEncryptFP(cfg config.DataProcess, key []byte) FlowProcessor {
 			_ = log.Warn("initialize crypt[", cfg.CipherType, "] failed ", err)
 			return nil
 		}
-		log.Info("set decrypt cipher [", cfg.CipherType, "]")
+		log.Debug("set decrypt cipher [", cfg.CipherType, "]")
 		return NewBlockEncryptFP(crypt)
 	case config.CipherTypeXTEA:
 		crypt, err := kcp.NewXTEABlockCrypt(key[:16])
@@ -59,7 +59,7 @@ func GetEncryptFP(cfg config.DataProcess, key []byte) FlowProcessor {
 			_ = log.Warn("initialize crypt[", cfg.CipherType, "] failed ", err)
 			return nil
 		}
-		log.Info("set encrypt cipher [", cfg.CipherType, "]")
+		log.Debug("set encrypt cipher [", cfg.CipherType, "]")
 		return NewBlockEncryptFP(crypt)
 	case config.CipherTypeSM4:
 		crypt, err := kcp.NewSM4BlockCrypt(key[:16])
@@ -67,7 +67,7 @@ func GetEncryptFP(cfg config.DataProcess, key []byte) FlowProcessor {
 			_ = log.Warn("initialize crypt[", cfg.CipherType, "] failed ", err)
 			return nil
 		}
-		log.Info("set encrypt cipher [", cfg.CipherType, "]")
+		log.Debug("set encrypt cipher [", cfg.CipherType, "]")
 		return NewBlockEncryptFP(crypt)
 	case config.CipherTypeSalsa20:
 		fp, err := NewSalsa20EncryptFP(key[:32])
@@ -75,7 +75,7 @@ func GetEncryptFP(cfg config.DataProcess, key []byte) FlowProcessor {
 			_ = log.Warn("initialize crypt[", cfg.CipherType, "] failed ", err)
 			return nil
 		}
-		log.Info("set encrypt cipher [", cfg.CipherType, "]")
+		log.Debug("set encrypt cipher [", cfg.CipherType, "]")
 		return fp
 	case config.CipherTypeBlowfish:
 		//1-56
@@ -84,10 +84,10 @@ func GetEncryptFP(cfg config.DataProcess, key []byte) FlowProcessor {
 			_ = log.Warn("initialize crypt[", cfg.CipherType, "] failed ", err)
 			return nil
 		}
-		log.Info("set encrypt cipher [", cfg.CipherType, "]")
+		log.Debug("set encrypt cipher [", cfg.CipherType, "]")
 		return NewBlockEncryptFP(crypt)
 	}
-	log.Info("unknown encrypt cipher type [", cfg.CipherType, "]")
+	log.Debug("unknown encrypt cipher type [", cfg.CipherType, "]")
 	return nil
 }
 
@@ -120,7 +120,7 @@ func GetDecryptFP(cfg config.DataProcess, key []byte) FlowProcessor {
 			_ = log.Warn("initialize crypt[", cfg.CipherType, "] failed ", err)
 			return nil
 		}
-		log.Info("set decrypt cipher [", cfg.CipherType, "]")
+		log.Debug("set decrypt cipher [", cfg.CipherType, "]")
 		return NewBlockDecryptFP(crypt)
 	case config.CipherTypeXOR:
 		crypt, err := kcp.NewSimpleXORBlockCrypt(key)
@@ -128,7 +128,7 @@ func GetDecryptFP(cfg config.DataProcess, key []byte) FlowProcessor {
 			_ = log.Warn("initialize crypt[", cfg.CipherType, "] failed ", err)
 			return nil
 		}
-		log.Info("set decrypt cipher [", cfg.CipherType, "]")
+		log.Debug("set decrypt cipher [", cfg.CipherType, "]")
 		return NewBlockDecryptFP(crypt)
 	case config.CipherTypeTEA:
 		crypt, err := kcp.NewTEABlockCrypt(key[:16])
@@ -136,7 +136,7 @@ func GetDecryptFP(cfg config.DataProcess, key []byte) FlowProcessor {
 			_ = log.Warn("initialize crypt[", cfg.CipherType, "] failed ", err)
 			return nil
 		}
-		log.Info("set decrypt cipher [", cfg.CipherType, "]")
+		log.Debug("set decrypt cipher [", cfg.CipherType, "]")
 		return NewBlockDecryptFP(crypt)
 	case config.CipherTypeXTEA:
 		crypt, err := kcp.NewXTEABlockCrypt(key[:16])
@@ -144,7 +144,7 @@ func GetDecryptFP(cfg config.DataProcess, key []byte) FlowProcessor {
 			_ = log.Warn("initialize crypt[", cfg.CipherType, "] failed ", err)
 			return nil
 		}
-		log.Info("set decrypt cipher [", cfg.CipherType, "]")
+		log.Debug("set decrypt cipher [", cfg.CipherType, "]")
 		return NewBlockDecryptFP(crypt)
 	case config.CipherTypeSM4:
 		crypt, err := kcp.NewSM4BlockCrypt(key[:16])
@@ -152,7 +152,7 @@ func GetDecryptFP(cfg config.DataProcess, key []byte) FlowProcessor {
 			_ = log.Warn("initialize crypt[", cfg.CipherType, "] failed ", err)
 			return nil
 		}
-		log.Info("set decrypt cipher [", cfg.CipherType, "]")
+		log.Debug("set decrypt cipher [", cfg.CipherType, "]")
 		return NewBlockDecryptFP(crypt)
 	case config.CipherTypeSalsa20:
 		fp, err := NewSalsa20DecryptFP(key[:32])
@@ -160,7 +160,7 @@ func GetDecryptFP(cfg config.DataProcess, key []byte) FlowProcessor {
 			_ = log.Warn("initialize crypt[", cfg.CipherType, "] failed ", err)
 			return nil
 		}
-		log.Info("set decrypt cipher [", cfg.CipherType, "]")
+		log.Debug("set decrypt cipher [", cfg.CipherType, "]")
 		return fp
 	case config.CipherTypeBlowfish:
 		//1-56
@@ -169,9 +169,9 @@ func GetDecryptFP(cfg config.DataProcess, key []byte) FlowProcessor {
 			_ = log.Warn("initialize crypt[", cfg.CipherType, "] failed ", err)
 			return nil
 		}
-		log.Info("set decrypt cipher [", cfg.CipherType, "]")
+		log.Debug("set decrypt cipher [", cfg.CipherType, "]")
 		return NewBlockDecryptFP(crypt)
 	}
-	log.Info("unknown decrypt cipher type [", cfg.CipherType, "]")
+	log.Debug("unknown decrypt cipher type [", cfg.CipherType, "]")
 	return nil
 }
