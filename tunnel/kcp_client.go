@@ -1,4 +1,4 @@
-package kcptunnel
+package tunnel
 
 import (
 	log "github.com/cihub/seelog"
@@ -6,14 +6,13 @@ import (
 	"net"
 	"time"
 	"tunn/config"
-	"tunn/tunnel"
 )
 
 //
-// ClientHandler
+// KCPClientHandler
 // @Description:
 //
-type ClientHandler struct {
+type KCPClientHandler struct {
 }
 
 //
@@ -22,7 +21,7 @@ type ClientHandler struct {
 // @receiver h
 // @param client
 //
-func (h ClientHandler) AfterInitialize(client *tunnel.Client) {
+func (h KCPClientHandler) AfterInitialize(client *Client) {
 
 }
 
@@ -34,7 +33,7 @@ func (h ClientHandler) AfterInitialize(client *tunnel.Client) {
 // @return conn
 // @return err
 //
-func (h *ClientHandler) CreateAndSetup(address string, config config.Config) (conn net.Conn, err error) {
+func (h *KCPClientHandler) CreateAndSetup(address string, config config.Config) (conn net.Conn, err error) {
 	session, err := kcp.DialWithOptions(address, nil, 10, 3)
 	if err != nil {
 		return nil, err

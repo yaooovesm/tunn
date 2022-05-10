@@ -7,10 +7,6 @@ import (
 	"tunn/config"
 	"tunn/config/protocol"
 	"tunn/tunnel"
-	"tunn/tunnel/kcptunnel"
-	"tunn/tunnel/tcptunnel"
-	"tunn/tunnel/wsstunnel"
-	"tunn/tunnel/wstunnel"
 	"tunn/version"
 )
 
@@ -117,34 +113,11 @@ func (app *Application) runService(serv Service) {
 // @receiver app
 //
 func (app *Application) Run() {
-	var serv = app.clientService()
+	var serv = tunnel.NewClient()
 	if serv == nil {
 		_ = log.Warn("tunnel server type not support")
 		os.Exit(-1)
 		return
 	}
 	app.runService(serv)
-}
-
-//
-// clientService
-// @Description:
-// @receiver app
-// @return Service
-//
-func (app *Application) clientService() Service {
-	log.Info("transmit protocol : ", app.Protocol)
-	switch app.Protocol {
-	case protocol.TCP:
-		return tunnel.NewClient(&tcptunnel.ClientHandler{})
-	case protocol.KCP:
-		return tunnel.NewClient(&kcptunnel.ClientHandler{})
-	case protocol.WS:
-		return tunnel.NewClient(&wstunnel.ClientHandler{})
-	case protocol.WSS:
-		return tunnel.NewClient(&wsstunnel.ClientHandler{})
-	default:
-		_ = log.Warn("unsupported protocol : ", app.Protocol)
-	}
-	return nil
 }

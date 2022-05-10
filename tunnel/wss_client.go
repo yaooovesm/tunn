@@ -1,4 +1,4 @@
-package wsstunnel
+package tunnel
 
 import (
 	"crypto/tls"
@@ -11,10 +11,9 @@ import (
 	"time"
 	"tunn/config"
 	"tunn/transmitter"
-	"tunn/tunnel"
 )
 
-type ClientHandler struct {
+type WSSClientHandler struct {
 	url    url.URL
 	dialer websocket.Dialer
 }
@@ -25,7 +24,7 @@ type ClientHandler struct {
 // @receiver h
 // @param client
 //
-func (h *ClientHandler) AfterInitialize(client *tunnel.Client) {
+func (h *WSSClientHandler) AfterInitialize(client *Client) {
 	u := url.URL{Scheme: "wss", Host: client.Address, Path: "/" + client.AuthClient.WSKey + "/access_point"}
 	h.url = u
 	pool := x509.NewCertPool()
@@ -51,7 +50,7 @@ func (h *ClientHandler) AfterInitialize(client *tunnel.Client) {
 // @return conn
 // @return err
 //
-func (h *ClientHandler) CreateAndSetup(address string, config config.Config) (conn net.Conn, err error) {
+func (h *WSSClientHandler) CreateAndSetup(address string, config config.Config) (conn net.Conn, err error) {
 	log.Info("connect to wss server : ", h.url.String())
 	wsconn, _, err := h.dialer.Dial(h.url.String(), nil)
 	return transmitter.WrapWSConn(wsconn), err

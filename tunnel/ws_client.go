@@ -1,4 +1,4 @@
-package wstunnel
+package tunnel
 
 import (
 	log "github.com/cihub/seelog"
@@ -8,14 +8,13 @@ import (
 	"time"
 	"tunn/config"
 	"tunn/transmitter"
-	"tunn/tunnel"
 )
 
 //
-// ClientHandler
+// WSClientHandler
 // @Description:
 //
-type ClientHandler struct {
+type WSClientHandler struct {
 	url url.URL
 }
 
@@ -25,7 +24,7 @@ type ClientHandler struct {
 // @receiver h
 // @param client
 //
-func (h *ClientHandler) AfterInitialize(client *tunnel.Client) {
+func (h *WSClientHandler) AfterInitialize(client *Client) {
 	u := url.URL{Scheme: "ws", Host: client.Address, Path: "/" + client.AuthClient.WSKey + "/access_point"}
 	h.url = u
 	log.Info("connect to ws server : ", h.url.String())
@@ -40,7 +39,7 @@ func (h *ClientHandler) AfterInitialize(client *tunnel.Client) {
 // @return conn
 // @return err
 //
-func (h *ClientHandler) CreateAndSetup(address string, config config.Config) (conn net.Conn, err error) {
+func (h *WSClientHandler) CreateAndSetup(address string, config config.Config) (conn net.Conn, err error) {
 	dialer := websocket.Dialer{
 		HandshakeTimeout:  time.Second * time.Duration(45),
 		EnableCompression: false,

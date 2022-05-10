@@ -1,16 +1,15 @@
-package tcptunnel
+package tunnel
 
 import (
 	"net"
 	"tunn/config"
-	"tunn/tunnel"
 )
 
 //
-// ClientHandler
+// TCPClientHandler
 // @Description:
 //
-type ClientHandler struct {
+type TCPClientHandler struct {
 }
 
 //
@@ -19,7 +18,7 @@ type ClientHandler struct {
 // @receiver h
 // @param client
 //
-func (h ClientHandler) AfterInitialize(client *tunnel.Client) {
+func (h TCPClientHandler) AfterInitialize(client *Client) {
 
 }
 
@@ -32,7 +31,7 @@ func (h ClientHandler) AfterInitialize(client *tunnel.Client) {
 // @return conn
 // @return err
 //
-func (h *ClientHandler) CreateAndSetup(address string, config config.Config) (conn net.Conn, err error) {
+func (h *TCPClientHandler) CreateAndSetup(address string, config config.Config) (conn net.Conn, err error) {
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", address)
 	tcpConn, err := net.DialTCP("tcp", nil, tcpAddr)
 	if err != nil {
