@@ -15,10 +15,14 @@ func getConfigString(logPah string) string {
 	if logPah != "" {
 		file = "        <rollingfile type=\"size\" filename=\"" + file + "\" maxsize=\"102400\" maxrolls=\"5\"/>\n"
 	}
+	debug := ""
+	if version.Develop {
+		debug = ",debug"
+	}
 	return "" +
 		"<seelog type=\"sync\">\n" +
 		"    <outputs formatid=\"main\">\n" +
-		"        <filter levels=\"trace,debug,info\">\n" +
+		"        <filter levels=\"trace,info" + debug + "\">\n" +
 		"            <console formatid=\"colored-default\"/>\n" +
 		"        </filter>\n" +
 		"        <filter levels=\"warn\">\n" +
