@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 	"tunn/config"
+	"tunn/networking"
 	"tunn/transmitter"
 	"tunn/utils/timer"
 )
@@ -200,21 +201,18 @@ func (c *AuthClientV3) onLogin(reply *AuthReply) error {
 		//fmt.Println("recv config --> ", string(marshal))
 		//覆盖配置到本地
 		config.Current.MergePushed(pushedConfig)
-		//marshal, _ = json.Marshal(config.Current)
+		//marshal, _ := json.Marshal(config.Current.Routes)
 		//fmt.Println("local config --> ", string(marshal))
+		for i := range pushedConfig.Routes {
+			if pushedConfig.Routes[i].Option == config.RouteOptionExport {
+				//开启路由支持
+				networking.RouteSupport()
+				break
+			}
+		}
+	} else {
+		return errors.New("failed to fetch config")
 	}
-	//不再单独接收路由表 统一接收自config
-	//if routes, ok := data["route"]; ok && routes != "" {
-	//	var rs []config.Route
-	//	err := json.Unmarshal([]byte(routes), &rs)
-	//	if err != nil {
-	//		_ = log.Warn("failed to recv route info")
-	//	} else {
-	//		//merge to local
-	//
-	//		config.Current.Routes = append(config.Current.Routes, rs...)
-	//	}
-	//}
 	if key, ok := data["key"]; ok && key != "" {
 		keyBytes, err := hex.DecodeString(key)
 		if err != nil {
@@ -223,13 +221,6 @@ func (c *AuthClientV3) onLogin(reply *AuthReply) error {
 		c.PublicKey = keyBytes
 		log.Info("receive ", len(c.PublicKey), " bytes key from server")
 	}
-	//不再单独接收分配地址
-	//if cidr, ok := data["cidr"]; ok {
-	//	log.Info("address allocated : ", cidr)
-	//	config.Current.Device.CIDR = cidr
-	//} else {
-	//	return errors.New("failed to get a address : " + data["error"])
-	//}
 	return nil
 }
 

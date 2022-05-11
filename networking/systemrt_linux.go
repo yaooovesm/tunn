@@ -5,6 +5,19 @@ import (
 	"os/exec"
 )
 
+var Initialized = false
+
+//
+// RouteSupport
+// @Description:
+//
+func RouteSupport() {
+	if Initialized {
+		return
+	}
+	Initialized = true
+}
+
 //
 // AddSystemRoute
 // @Description:

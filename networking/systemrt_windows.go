@@ -9,6 +9,40 @@ import (
 	"strconv"
 )
 
+var Initialized = false
+
+/**
+Windows在暴露网络时需要开启Routing and Remote Access服务
+cmd | sc config RemoteAccess start=auto
+cmd | sc start RemoteAccess
+开启路由转发
+powershell | reg add HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters /v IPEnableRouter /D 1 /f
+*/
+
+//
+// RouteSupport
+// @Description:
+//
+func RouteSupport() {
+	if Initialized {
+		return
+	}
+	log.Info("route support set on")
+	err := command("cmd", "sc config RemoteAccess start=auto")
+	if err != nil {
+		_ = log.Warn("route support : ", err)
+	}
+	err = command("cmd", "sc start RemoteAccess")
+	if err != nil {
+		_ = log.Warn("route support : ", err)
+	}
+	err = command("PowerShell", "reg add HKLM\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters /v IPEnableRouter /D 1 /f")
+	if err != nil {
+		_ = log.Warn("route support : ", err)
+	}
+	Initialized = true
+}
+
 //
 // AddSystemRoute
 // @Description:
