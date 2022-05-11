@@ -32,7 +32,6 @@ type Client struct {
 	Address          string
 	tunnelIndex      int
 	maxIndex         int
-	size             int
 	multiConn        *transmitter.MultiConn
 	TxFP             *traffic.FlowProcessors
 	RxFP             *traffic.FlowProcessors
@@ -51,15 +50,11 @@ type Client struct {
 // @return *TCPClientV3
 //
 func NewClient() *Client {
-	size := config.Current.Global.MultiConn
-	log.Info("multi connection size : ", size)
 	return &Client{
 		IFace:            nil,
 		Config:           config.Current,
 		Error:            nil,
-		size:             size,
 		tunnelIndex:      0,
-		maxIndex:         size - 1, // size -1
 		multiConn:        nil,
 		mtu:              config.Current.Global.MTU,
 		version:          transmitter.V2,
@@ -162,10 +157,12 @@ func (c *Client) Start() error {
 	//更新系统路由表
 	c.SysRouteTable.Merge(config.Current.Routes)
 	c.SysRouteTable.DeployAll()
-
+	//同步size
+	size := config.Current.Global.MultiConn
+	log.Info("multi connection size : ", size)
 	//初始化完成
 	c.handler.AfterInitialize(c)
-	for i := 0; i < c.size; i++ {
+	for i := 0; i < size; i++ {
 		conn, err := c.handler.CreateAndSetup(c.Address, c.Config)
 		if err != nil {
 			return err

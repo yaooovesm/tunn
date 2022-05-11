@@ -25,7 +25,7 @@ func (r *RouteRecord) Deploy() {
 	if r.Deployed {
 		return
 	}
-	err := AddSystemRoute(r.DeviceName, r.Network)
+	err := AddSystemRoute(r.Network, r.DeviceName)
 	if err != nil {
 		r.Deployed = false
 		r.Err = err
