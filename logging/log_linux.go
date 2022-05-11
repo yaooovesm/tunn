@@ -2,6 +2,7 @@ package logging
 
 import (
 	log "github.com/cihub/seelog"
+	"tunn/version"
 )
 
 //

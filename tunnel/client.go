@@ -304,5 +304,7 @@ func (c *Client) RXHandler(conn net.Conn, num int) {
 		}
 		//流量处理
 		_, _ = c.IFace.Write(c.RxFP.Process(pl))
+		//n, _ := c.IFace.Write(c.RxFP.Process(pl))
+		//fmt.Println("rx ", n, " bytes dst = ", waterutil.IPv4Destination(pl))
 	}
 }

@@ -44,7 +44,7 @@ func AddSystemRoute(network string, dev string) error {
 //
 func command(c string, args ...string) error {
 	cmd := exec.Command(c, args...)
-	log.Info("exec : ", cmd.String())
+	log.Debug("exec : ", cmd.String())
 	return cmd.Run()
 }
 
