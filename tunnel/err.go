@@ -11,6 +11,7 @@ var (
 	ErrDisconnectAccidentally = errors.New("disconnect accidentally")
 	ErrLogin                  = errors.New("failed to login to server")
 	ErrStoppedByServer        = errors.New("client stopped")
+	ErrRestartByServer        = errors.New("client restart")
 )
 
 var (
@@ -21,6 +22,7 @@ var (
 		authentication.ErrAuthConnect:   1,
 		authentication.ErrConnectFailed: 1,
 		ErrDisconnectAccidentally:       1,
+		ErrRestartByServer:              1,
 	}
 	allowedErrStr = []string{
 		"use of closed network connection",

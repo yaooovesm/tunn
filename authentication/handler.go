@@ -49,4 +49,9 @@ type AuthClientHandler interface {
 	// @Description:
 	//
 	OnKick()
+	//
+	// OnRestart
+	// @Description:
+	//
+	OnRestart()
 }

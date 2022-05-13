@@ -100,3 +100,13 @@ func (h *AuthClientHandler) OnKick() {
 	h.Client.SetErr(ErrStoppedByServer)
 	h.Client.Stop()
 }
+
+//
+// OnRestart
+// @Description:
+// @receiver h
+//
+func (h *AuthClientHandler) OnRestart() {
+	h.Client.SetErr(ErrRestartByServer)
+	h.Client.Stop()
+}

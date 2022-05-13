@@ -149,7 +149,14 @@ func (c *AuthClientV3) handle() {
 				reply := AuthReply{}
 				//解析reply
 				_ = json.Unmarshal(p.Payload, &reply)
-				c.onKick(reply)
+				_ = log.Warn("server : ", reply.Message)
+				c.handler.OnKick()
+			case PacketTypeRestart:
+				reply := AuthReply{}
+				//解析reply
+				_ = json.Unmarshal(p.Payload, &reply)
+				log.Info("server : ", reply.Message)
+				c.handler.OnRestart()
 			}
 		}
 	}
@@ -260,17 +267,6 @@ func (c *AuthClientV3) Logout() error {
 	c.handler.OnLogout(nil)
 	c.handler.OnDisconnect()
 	return nil
-}
-
-//
-// onKick
-// @Description:
-// @receiver c
-// @param reply
-//
-func (c *AuthClientV3) onKick(reply AuthReply) {
-	_ = log.Warn("server : ", reply.Message)
-	c.handler.OnKick()
 }
 
 //
