@@ -20,6 +20,7 @@ const (
 // @Description:
 //
 type Route struct {
+	Name    string      `json:"name"` //for export
 	Network string      `json:"network"`
 	Option  RouteOption `json:"option"`
 }
