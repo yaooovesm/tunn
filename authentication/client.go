@@ -19,6 +19,9 @@ import (
 	"tunn/utils/timer"
 )
 
+//TODO 部分情况下无法正常退出
+//TODO 部分情况下IP地址未能归还
+
 //
 // AuthClientV3
 // @Description:
