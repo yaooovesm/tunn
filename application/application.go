@@ -87,6 +87,7 @@ func (app *Application) runService(serv Service) {
 		return
 	}
 	ch := make(chan error, 1)
+	//TODO 解决重复初始化问题
 	if err := serv.Init(); err != nil {
 		_ = log.Warn("init failed : ", err)
 		os.Exit(-1)
