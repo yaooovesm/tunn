@@ -216,6 +216,17 @@ func (c *Client) confirm(conn net.Conn) error {
 }
 
 //
+// Terminate
+// @Description:
+// @receiver c
+//
+func (c *Client) Terminate() {
+	_ = c.AuthClient.Logout()
+	c.Error = errors.New("terminated")
+	c.Cancel()
+}
+
+//
 // Stop
 // @Description:
 // @receiver C

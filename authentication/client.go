@@ -175,22 +175,6 @@ func (c *AuthClientV3) onLogin(reply *AuthReply) error {
 	if err != nil {
 		return err
 	}
-	//TODO default route
-	//if config.Current.Global.DefaultRoute {
-	//	if cidr, ok := data["gateway"]; ok && cidr != "" {
-	//		ip, _, err := net.ParseCIDR(cidr)
-	//		if err != nil {
-	//			_ = log.Warn("set default_route failed : ", err)
-	//		} else {
-	//			cmd := exec.Command("/sbin/route", "add", "default", "gw", ip.String(), c.handler.GetDevice().Name())
-	//			if err := cmd.Run(); err != nil {
-	//				_ = log.Warn(" set default_route failed : ", err.Error())
-	//			} else {
-	//				log.Info("set default_route succeed : default gw -> ", ip.String())
-	//			}
-	//		}
-	//	}
-	//}
 	//接收ws_key
 	if wskey, ok := data["ws_key"]; ok && wskey != "" {
 		c.WSKey = wskey
@@ -265,7 +249,7 @@ func (c *AuthClientV3) Logout() error {
 	}
 	log.Info("logout success")
 	c.handler.OnLogout(nil)
-	c.handler.OnDisconnect()
+	//c.handler.OnDisconnect()
 	return nil
 }
 

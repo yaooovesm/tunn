@@ -77,6 +77,7 @@ func (h *AuthClientHandler) OnLogin(err error, key []byte) {
 func (h *AuthClientHandler) OnLogout(err error) {
 	h.Client.SetErr(err)
 	h.Client.Stop()
+	h.Client.multiConn.Close()
 }
 
 //
@@ -99,6 +100,7 @@ func (h *AuthClientHandler) OnDisconnect() {
 func (h *AuthClientHandler) OnKick() {
 	h.Client.SetErr(ErrStoppedByServer)
 	h.Client.Stop()
+	h.Client.multiConn.Close()
 }
 
 //
@@ -109,4 +111,5 @@ func (h *AuthClientHandler) OnKick() {
 func (h *AuthClientHandler) OnRestart() {
 	h.Client.SetErr(ErrRestartByServer)
 	h.Client.Stop()
+	h.Client.multiConn.Close()
 }
