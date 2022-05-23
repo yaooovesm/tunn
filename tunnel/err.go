@@ -26,6 +26,7 @@ var (
 	}
 	allowedErrStr = []string{
 		"use of closed network connection",
+		"close 1006 (abnormal closure)",
 	}
 )
 
