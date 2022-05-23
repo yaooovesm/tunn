@@ -9,6 +9,8 @@ import (
 	"tunn/config/protocol"
 )
 
+var Location = ""
+
 var Current = Config{}
 
 //
@@ -24,6 +26,7 @@ type Config struct {
 	DataProcess DataProcess `json:"data_process"`
 	Security    Security    `json:"security"`
 	Runtime     Runtime     `json:"runtime"`
+	Admin       Admin       `json:"admin"`
 }
 
 //
@@ -109,13 +112,48 @@ func (cfg *Config) MergePushed(push PushedConfig) {
 }
 
 //
+// ToStorageModel
+// @Description:
+// @receiver cfg
+// @return ClientConfigStorage
+//
+func (cfg *Config) ToStorageModel() ClientConfigStorage {
+	storage := ClientConfigStorage{
+		Auth:     cfg.Auth,
+		Security: cfg.Security,
+		Admin:    cfg.Admin,
+		User: User{
+			Account: cfg.User.Account,
+		},
+	}
+	return storage
+}
+
+//
+// Storage
+// @Description:
+// @receiver cfg
+// @return error
+//
+func (cfg *Config) Storage(saveAccount bool) error {
+	storage := cfg.ToStorageModel()
+	if !saveAccount {
+		storage.User = User{}
+	}
+	return storage.Dump(Location)
+}
+
+//
 // Load
 // @Description:
 //
 func Load() {
 	c := flag.String("c", "", "config path")
 	flag.Parse()
-	Current.ReadFromFile(*c)
+	Location = *c
+	storage := ClientConfigStorage{}
+	storage.ReadFromFile(Location)
+	Current = storage.ToConfig()
 	Current.Check()
 	Current.Runtime.Collect()
 }

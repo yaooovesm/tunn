@@ -1,6 +1,7 @@
 package main
 
 import (
+	"tunn/administration"
 	"tunn/application"
 	"tunn/config"
 	"tunn/logging"
@@ -16,6 +17,8 @@ func main() {
 	//load config
 	config.Load()
 	//create and run application
-	app := application.New()
-	app.Run()
+	application.New()
+	//app.Run()
+	admin := administration.NewClientAdmin(config.Current.Admin)
+	admin.Run()
 }

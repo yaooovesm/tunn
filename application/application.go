@@ -10,6 +10,8 @@ import (
 	"tunn/version"
 )
 
+var Current *Application
+
 //
 // Application
 // @Description:
@@ -17,6 +19,9 @@ import (
 type Application struct {
 	Config   config.Config
 	Protocol protocol.Name
+	serv     Service
+	Running  bool
+	Error    string
 }
 
 //
@@ -25,10 +30,13 @@ type Application struct {
 // @return *Application
 //
 func New() *Application {
-	return &Application{
+	app := &Application{
 		Config:   config.Current,
 		Protocol: config.Current.Global.Protocol,
+		Running:  false,
 	}
+	Current = app
+	return app
 }
 
 //
@@ -53,6 +61,11 @@ type Service interface {
 	// @Description: stop service
 	//
 	Stop()
+	//
+	// Terminate
+	// @Description:
+	//
+	Terminate()
 }
 
 //
@@ -62,6 +75,7 @@ type Service interface {
 // @param serv
 //
 func (app *Application) runService(serv Service) {
+	app.Error = ""
 	log.Info("tunnel version : ", version.Version)
 	if version.Develop {
 		_ = log.Warn("当前版本为测试版本！")
@@ -81,6 +95,7 @@ func (app *Application) runService(serv Service) {
 		log.Info("service init success...")
 	}
 	go func() {
+		app.Running = true
 		ch <- serv.Start()
 	}()
 	for {
@@ -89,18 +104,18 @@ func (app *Application) runService(serv Service) {
 			if err != nil {
 				serv.Stop()
 				_ = log.Warn("tunnel exit with error : ", err.Error())
-				//if strings.Contains(str, "use of closed network connection")
+				app.Error = err.Error()
 				if tunnel.IsAllowRestart(err, true) {
 					log.Info("tunnel restart in 10s...")
 					time.Sleep(time.Second * 10)
 					ch <- serv.Start()
 				} else {
-					os.Exit(-1)
+					app.Running = false
 					return
 				}
 			} else {
+				app.Running = false
 				log.Info("tunnel exited")
-				os.Exit(0)
 				return
 			}
 		}
@@ -119,5 +134,15 @@ func (app *Application) Run() {
 		os.Exit(-1)
 		return
 	}
-	app.runService(serv)
+	app.serv = serv
+	go app.runService(serv)
+}
+
+//
+// Stop
+// @Description:
+// @receiver app
+//
+func (app *Application) Stop() {
+	app.serv.Terminate()
 }
