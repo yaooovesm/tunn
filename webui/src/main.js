@@ -1,8 +1,11 @@
-import { createApp } from 'vue'
+import {createApp} from 'vue'
 import App from './App.vue'
 
 //router
 import router from "./router"
+
+//utils
+import utils from "@/utils";
 
 //axios
 import axios from 'axios'
@@ -13,6 +16,8 @@ import element from 'element-plus';
 import 'element-plus/dist/index.css'
 
 const app = createApp(App);
+//注册工具类
+app.config.globalProperties.$utils = utils
 app
     //router
     .use(router)
