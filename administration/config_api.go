@@ -58,15 +58,29 @@ func ApiGetCurrentConfig(ctx *gin.Context) {
 //
 func ApiGetCurrentConfigAll(ctx *gin.Context) {
 	running := false
+	initialized := false
+	online := false
+	err := ""
 	if application.Current != nil {
 		running = application.Current.Running
+		err = application.Current.Error
+		initialized = application.Current.Init
+		if application.Current.Serv != nil {
+			online = application.Current.Serv.Online
+		}
 	}
-	current := config.Current
-	current.User.Password = ""
-	current.Admin.User = ""
-	current.Admin.Password = ""
+	current := config.Config{}
+	if running {
+		current = config.Current
+		current.User.Password = ""
+		current.Admin.User = ""
+		current.Admin.Password = ""
+	}
 	responseSuccess(ctx, map[string]interface{}{
-		"running": running,
-		"config":  current,
+		"running":     running,
+		"online":      online,
+		"initialized": initialized,
+		"error":       err,
+		"config":      current,
 	}, "")
 }

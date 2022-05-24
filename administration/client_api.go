@@ -16,14 +16,19 @@ import (
 func ApiCurrentApplication(ctx *gin.Context) {
 	running := false
 	initialized := false
+	online := false
 	err := ""
 	if application.Current != nil {
 		running = application.Current.Running
 		err = application.Current.Error
 		initialized = application.Current.Init
+		if application.Current.Serv != nil {
+			online = application.Current.Serv.Online
+		}
 	}
 	responseSuccess(ctx, map[string]interface{}{
 		"running":     running,
+		"online":      online,
 		"initialized": initialized,
 		"error":       err,
 		"version":     version.Version,

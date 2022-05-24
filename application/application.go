@@ -20,11 +20,13 @@ var Current *Application
 type Application struct {
 	Config         config.Config
 	Protocol       protocol.Name
-	Serv           Service
+	Serv           *tunnel.Client
 	Running        bool
 	Init           bool
 	Error          string
 	startWaitGroup *sync.WaitGroup
+	terminate      chan int
+	ch             chan error
 }
 
 //
@@ -39,6 +41,8 @@ func New() *Application {
 		Running:        false,
 		Init:           false,
 		startWaitGroup: &sync.WaitGroup{},
+		terminate:      make(chan int),
+		ch:             make(chan error, 1),
 	}
 	Current = app
 	return app
@@ -102,14 +106,19 @@ func (app *Application) InitService() {
 //
 func (app *Application) RunService() {
 	app.Error = ""
-	ch := make(chan error, 1)
+	app.ch = make(chan error, 1)
 	go func() {
 		app.Running = true
-		ch <- app.Serv.Start(app.startWaitGroup)
+		app.ch <- app.Serv.Start(app.startWaitGroup)
 	}()
 	for {
 		select {
-		case err := <-ch:
+		case <-app.terminate:
+			app.Error = "terminated"
+			app.Running = false
+			log.Info("tunnel exited")
+			return
+		case err := <-app.ch:
 			if err != nil {
 				app.Serv.Stop()
 				_ = log.Warn("tunnel exit with error : ", err.Error())
@@ -119,7 +128,7 @@ func (app *Application) RunService() {
 					time.Sleep(time.Second * 10)
 					app.startWaitGroup.Add(1)
 					app.Error = ""
-					ch <- app.Serv.Start(app.startWaitGroup)
+					app.ch <- app.Serv.Start(app.startWaitGroup)
 				} else {
 					app.Running = false
 					return
@@ -159,5 +168,11 @@ func (app *Application) Run() error {
 // @receiver app
 //
 func (app *Application) Stop() {
-	app.Serv.Terminate()
+	if app.Serv.Online {
+		_ = app.Serv.AuthClient.Logout()
+	} else {
+		go app.Serv.Terminate()
+		app.terminate <- 1
+	}
+	//app.ch <- errors.New("terminated")
 }

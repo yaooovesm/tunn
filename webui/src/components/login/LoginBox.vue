@@ -1,14 +1,16 @@
 <template>
   <div>
     <div style="box-shadow: 1px 1px 4px rgba(50, 50, 50, 0.2);border-radius: 4px;">
-      <el-alert style="margin-bottom: 10px" v-if="error==='logout'" title="已断开连接" type="info" show-icon/>
-      <el-alert style="margin-bottom: 10px" v-else-if="error!==''" :title="error" type="error" show-icon/>
+      <el-alert style="margin-bottom: 10px" v-if="error==='logout'||error === 'terminated'"
+                :title="error==='logout'?'已断开连接':'已中止运行'" type="info"
+                show-icon/>
+      <el-alert style="margin-bottom: 10px" v-else-if="error!==''" :title="error" type="error" show-icon></el-alert>
     </div>
     <div v-loading="loading"
          class="box-outer"
          style="width: 100%;height:405px;padding-top:30px;padding-bottom: 8px;transition-duration: 0.5s">
-      <div class="title" :style="running?'border-left: solid 8px #67C23A;':''">
-        <div class="title-text">{{ running ? "已连接" : "创建连接" }}</div>
+      <div class="title" :style="online?'border-left: solid 8px #67C23A;':'border-left: solid 8px #909090'">
+        <div class="title-text">{{ running ? online ? "已连接" : "连接中" : online ? "客户端异常" : "创建连接" }}</div>
       </div>
       <el-row>
         <el-col :span="20" :offset="2">
@@ -28,7 +30,7 @@
             </el-form-item>
           </el-form>
           <el-button type="primary" v-if="!running" style="margin-top: 40px;width: 100%" @click="start">连接</el-button>
-          <el-button type="danger" v-else style="margin-top: 40px;width: 100%" @click="stop">断开</el-button>
+          <el-button type="danger" v-else style="margin-top: 40px;width: 100%" @click="stop">中止</el-button>
         </el-col>
       </el-row>
       <el-divider style="margin-top: 50px;margin-bottom: 10px"/>
@@ -89,6 +91,7 @@ export default {
     return {
       displayPwd: "******",
       running: false,
+      online: false,
       error: "",
       setting: false,
       loading: false,
@@ -119,9 +122,9 @@ export default {
         data: {}
       }).then((res) => {
         let response = res.data
-        console.log(response)
         this.error = response.data.error
         this.running = response.data.running
+        this.online = response.data.online
         this.loading = false
       }).catch((err) => {
         this.loading = false

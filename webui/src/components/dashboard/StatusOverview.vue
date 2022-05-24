@@ -7,12 +7,15 @@
       </div>
       <div style="padding: 20px">
         <el-row :gutter="30">
+          {{ properties }}
         </el-row>
       </div>
       <div style="font-size: 12px;color: #808080;text-align: right;padding: 5px 10px">
         更新于
         {{ $utils.FormatDate("YYYY/mm/dd HH:MM:SS", updateTime) }}&nbsp;
-        <el-button type="text" style="font-size: 12px;height: 12px;line-height: 13px" @click="update">刷新
+        <el-button text
+                   style="font-size: 12px;height: 12px;line-height: 13px;padding: 8px 2px;transform: translateY(-1px)"
+                   @click="update">刷新
         </el-button>
       </div>
     </el-card>
@@ -26,6 +29,53 @@ export default {
   name: "StatusOverview",
   data() {
     return {
+      properties: {
+        config: {
+          global: {
+            address: "",
+            port: 0,
+            protocol: "",
+            mtu: 0,
+            multi_connection: 0
+          },
+          user: {
+            Account: "",
+            Password: ""
+          },
+          route: null,
+          device: {
+            cidr: "",
+            dns: ""
+          },
+          auth: {
+            Address: "",
+            Port: 0
+          },
+          data_process: {
+            encrypt: "",
+            key: null
+          },
+          security: {
+            cert: ""
+          },
+          runtime: {
+            os: "",
+            version: "",
+            arch: "",
+            platform: "",
+            app: ""
+          },
+          admin: {
+            address: "",
+            port: 0,
+            user: "",
+            password: ""
+          }
+        },
+        error: "",
+        initialized: false,
+        running: false
+      },
       loading: false,
       updateTime: new Date()
     }
@@ -39,7 +89,7 @@ export default {
         data: {}
       }).then((res) => {
         let response = res.data
-        console.log(response)
+        this.properties = response.data
         this.loading = false
       }).catch((err) => {
         this.loading = false

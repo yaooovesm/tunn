@@ -41,6 +41,7 @@ type Client struct {
 	version          transmitter.Version
 	handler          ClientConnHandler
 	running          bool
+	Online           bool
 	txHandlerRunning bool
 	SysRouteTable    *networking.SystemRouteTable
 }
@@ -61,6 +62,7 @@ func NewClient() *Client {
 		version:          transmitter.V2,
 		running:          false,
 		txHandlerRunning: false,
+		Online:           false,
 	}
 }
 
@@ -185,6 +187,7 @@ func (c *Client) Start(wg *sync.WaitGroup) error {
 		go c.RXHandler(conn, num)
 	}
 	c.running = true
+	c.Online = true
 	if !c.txHandlerRunning {
 		go c.TXHandler()
 	}
@@ -194,6 +197,7 @@ func (c *Client) Start(wg *sync.WaitGroup) error {
 	select {
 	case <-c.Context.Done():
 		c.running = false
+		c.Online = false
 		err := c.Error
 		c.Error = nil
 		return err
@@ -231,7 +235,10 @@ func (c *Client) confirm(conn net.Conn) error {
 // @receiver c
 //
 func (c *Client) Terminate() {
-	_ = c.AuthClient.Logout()
+	c.running = false
+	if c.AuthClient != nil {
+		_ = c.AuthClient.Logout()
+	}
 	c.Error = errors.New("terminated")
 	c.Cancel()
 }
@@ -242,6 +249,7 @@ func (c *Client) Terminate() {
 // @receiver C
 //
 func (c *Client) Stop() {
+	c.running = false
 	//config.Current.Clear()
 	c.Cancel()
 }
