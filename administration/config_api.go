@@ -2,6 +2,7 @@ package administration
 
 import (
 	"github.com/gin-gonic/gin"
+	"tunn/application"
 	"tunn/config"
 )
 
@@ -48,4 +49,24 @@ func ApiGetCurrentConfig(ctx *gin.Context) {
 	}
 	cfg.Admin = admin
 	responseSuccess(ctx, cfg, "")
+}
+
+//
+// ApiGetCurrentConfigAll
+// @Description:
+// @param ctx
+//
+func ApiGetCurrentConfigAll(ctx *gin.Context) {
+	running := false
+	if application.Current != nil {
+		running = application.Current.Running
+	}
+	current := config.Current
+	current.User.Password = ""
+	current.Admin.User = ""
+	current.Admin.Password = ""
+	responseSuccess(ctx, map[string]interface{}{
+		"running": running,
+		"config":  current,
+	}, "")
 }

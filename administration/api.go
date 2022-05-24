@@ -31,6 +31,7 @@ func (ad *ClientAdminApi) Serv() {
 	{
 		configGroup := api.Group("/config")
 		configGroup.GET("/", ApiGetCurrentConfig)
+		configGroup.GET("/all", ApiGetCurrentConfigAll)
 		configGroup.POST("/save", ApiSaveCurrentConfig)
 	}
 	//application
