@@ -68,7 +68,21 @@ func (cfg *ClientConfigStorage) ToConfig() Config {
 // @receiver cfg
 //
 func (cfg *ClientConfigStorage) Dump(path string) error {
-	bytes, err := json.MarshalIndent(cfg, "", "    ")
+	//检查是否保存了密码
+	currentBytes, err := ioutil.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	current := ClientConfigStorage{}
+	err = json.Unmarshal(currentBytes, &current)
+	if err != nil {
+		return err
+	}
+	sto := cfg
+	if current.User.Password != "" {
+		sto.User.Password = current.User.Password
+	}
+	bytes, err := json.MarshalIndent(sto, "", "    ")
 	if err != nil {
 		return err
 	}
