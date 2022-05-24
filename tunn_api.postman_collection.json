@@ -52,6 +52,24 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "获取当前所有配置",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{base_url}}{{api_ver}}config/all",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{base_url}}{{api_ver}}config"
+							],
+							"path": [
+								"all"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -116,6 +134,64 @@
 							],
 							"path": [
 								"stop"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "获取当前连接属性",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "admin",
+			"item": [
+				{
+					"name": "获取控制台信息",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{base_url}}{{api_ver}}admin/",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{base_url}}{{api_ver}}admin"
+							],
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "登录控制台",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user\": \"admin\",\r\n    \"password\": \"admin1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{base_url}}{{api_ver}}admin/login",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{base_url}}{{api_ver}}admin"
+							],
+							"path": [
+								"login"
 							]
 						}
 					},
