@@ -17,8 +17,10 @@ func main() {
 	//load config
 	config.Load()
 	//create and run application
-	application.New()
-	//app.Run()
+	app := application.New()
+	if config.Current.User.Account != "" && config.Current.User.Password != "" {
+		app.Run()
+	}
 	admin := administration.NewClientAdmin(config.Current.Admin)
 	admin.Run()
 }
