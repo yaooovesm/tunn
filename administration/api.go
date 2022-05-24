@@ -40,4 +40,10 @@ func (ad *ClientAdminApi) Serv() {
 		appGroup.POST("/start", ApiApplicationStart)
 		appGroup.GET("/stop", ApiApplicationStop)
 	}
+	//admin
+	{
+		adminGroup := api.Group("/admin")
+		adminGroup.GET("/", ApiAdminInfo)
+		adminGroup.POST("/login", ApiAdminLogin)
+	}
 }
