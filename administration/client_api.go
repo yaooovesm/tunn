@@ -15,17 +15,20 @@ import (
 //
 func ApiCurrentApplication(ctx *gin.Context) {
 	running := false
+	initialized := false
 	err := ""
 	if application.Current != nil {
 		running = application.Current.Running
 		err = application.Current.Error
+		initialized = application.Current.Init
 	}
 	responseSuccess(ctx, map[string]interface{}{
-		"running": running,
-		"error":   err,
-		"version": version.Version,
-		"develop": version.Develop,
-		"runtime": config.Current.Runtime,
+		"running":     running,
+		"initialized": initialized,
+		"error":       err,
+		"version":     version.Version,
+		"develop":     version.Develop,
+		"runtime":     config.Current.Runtime,
 	}, "")
 }
 
@@ -60,7 +63,11 @@ func ApiApplicationStart(ctx *gin.Context) {
 	if application.Current == nil {
 		application.New()
 	}
-	application.Current.Run()
+	err = application.Current.Run()
+	if err != nil {
+		responseError(ctx, err, "启动失败")
+		return
+	}
 	responseSuccess(ctx, "", "启动成功")
 }
 
