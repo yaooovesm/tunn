@@ -117,6 +117,8 @@ func (app *Application) RunService() {
 				if tunnel.IsAllowRestart(err, true) {
 					log.Info("tunnel restart in 10s...")
 					time.Sleep(time.Second * 10)
+					app.startWaitGroup.Add(1)
+					app.Error = ""
 					ch <- app.Serv.Start(app.startWaitGroup)
 				} else {
 					app.Running = false
