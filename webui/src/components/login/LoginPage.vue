@@ -4,8 +4,10 @@
       <el-main>
         <el-row>
           <el-col :span="24">
-            <login-box style="margin-top: 21vh;margin-left: 50%;transform: translateX(-50%);background-color: #ffffff"
-                       :auto="true"/>
+            <!--            <login-box style="margin-top: 21vh;margin-left: 50%;transform: translateX(-50%);background-color: #ffffff"-->
+            <!--                       :auto="true"/>-->
+            <admin-login-box
+                style="margin-top: 21vh;margin-left: 50%;transform: translateX(-50%);background-color: #ffffff"/>
           </el-col>
         </el-row>
       </el-main>
@@ -14,12 +16,12 @@
 </template>
 
 <script>
-import LoginBox from "@/components/login/LoginBox";
+import AdminLoginBox from "@/components/login/AdminLoginBox";
 
 export default {
   name: "LoginPage",
   components: {
-    LoginBox
+    AdminLoginBox,
   },
   mounted() {
   },
