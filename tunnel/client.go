@@ -7,6 +7,7 @@ import (
 	"net"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 	"tunn/authentication"
 	"tunn/config"
@@ -91,7 +92,7 @@ func (c *Client) Init() error {
 // @receiver C
 // @return error
 //
-func (c *Client) Start() error {
+func (c *Client) Start(wg *sync.WaitGroup) error {
 	//update key
 	config.GenerateCipherKey()
 	//multi conn
@@ -181,6 +182,7 @@ func (c *Client) Start() error {
 	}
 	log.Info("connected to the server successfully!")
 	log.Info("your ip address is ", config.Current.Device.CIDR, ".")
+	wg.Done()
 	select {
 	case <-c.Context.Done():
 		c.running = false
