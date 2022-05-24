@@ -3,6 +3,7 @@ package application
 import (
 	log "github.com/cihub/seelog"
 	"os"
+	"sync"
 	"time"
 	"tunn/config"
 	"tunn/config/protocol"
@@ -17,12 +18,13 @@ var Current *Application
 // @Description:
 //
 type Application struct {
-	Config   config.Config
-	Protocol protocol.Name
-	Serv     Service
-	Running  bool
-	Init     bool
-	Error    string
+	Config         config.Config
+	Protocol       protocol.Name
+	Serv           Service
+	Running        bool
+	Init           bool
+	Error          string
+	startWaitGroup *sync.WaitGroup
 }
 
 //
@@ -32,9 +34,11 @@ type Application struct {
 //
 func New() *Application {
 	app := &Application{
-		Config:   config.Current,
-		Protocol: config.Current.Global.Protocol,
-		Running:  false,
+		Config:         config.Current,
+		Protocol:       config.Current.Global.Protocol,
+		Running:        false,
+		Init:           false,
+		startWaitGroup: &sync.WaitGroup{},
 	}
 	Current = app
 	return app
@@ -56,7 +60,7 @@ type Service interface {
 	// @Description: start service
 	// @return error
 	//
-	Start() error
+	Start(wg *sync.WaitGroup) error
 	//
 	// Stop
 	// @Description: stop service
@@ -101,7 +105,7 @@ func (app *Application) RunService() {
 	ch := make(chan error, 1)
 	go func() {
 		app.Running = true
-		ch <- app.Serv.Start()
+		ch <- app.Serv.Start(app.startWaitGroup)
 	}()
 	for {
 		select {
@@ -113,7 +117,7 @@ func (app *Application) RunService() {
 				if tunnel.IsAllowRestart(err, true) {
 					log.Info("tunnel restart in 10s...")
 					time.Sleep(time.Second * 10)
-					ch <- app.Serv.Start()
+					ch <- app.Serv.Start(app.startWaitGroup)
 				} else {
 					app.Running = false
 					return
@@ -132,18 +136,19 @@ func (app *Application) RunService() {
 // @Description: run application
 // @receiver app
 //
-func (app *Application) Run() {
+func (app *Application) Run() error {
 	if !app.Init {
 		var serv = tunnel.NewClient()
 		if serv == nil {
-			_ = log.Warn("tunnel server type not support")
-			os.Exit(-1)
-			return
+			return log.Warn("tunnel server type not support")
 		}
 		app.Serv = serv
 		app.InitService()
 	}
+	app.startWaitGroup.Add(1)
 	go app.RunService()
+	app.startWaitGroup.Wait()
+	return nil
 }
 
 //
