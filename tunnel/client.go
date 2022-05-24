@@ -104,12 +104,14 @@ func (c *Client) Start(wg *sync.WaitGroup) error {
 	//auth
 	clientV3, err := authentication.NewClientV3(&AuthClientHandler{Client: c})
 	if err != nil {
+		wg.Done()
 		return err
 	}
 	c.AuthClient = clientV3
 	//login
 	err = c.AuthClient.Login()
 	if err != nil {
+		wg.Done()
 		return err
 	}
 	//验证服务器登录后覆盖本地配置需要重新载入
@@ -130,6 +132,7 @@ func (c *Client) Start(wg *sync.WaitGroup) error {
 	case protocol.WSS:
 		c.handler = &WSSClientHandler{}
 	default:
+		wg.Done()
 		return errors.New("unsupported protocol : " + string(c.Config.Global.Protocol))
 	}
 	log.Info("transmit protocol : ", c.Config.Global.Protocol.ToString())
@@ -139,10 +142,12 @@ func (c *Client) Start(wg *sync.WaitGroup) error {
 	if c.IFace == nil {
 		dev, err := device.NewTunDevice()
 		if err != nil {
+			wg.Done()
 			return err
 		}
 		err = dev.Setup()
 		if err != nil {
+			wg.Done()
 			return err
 		}
 		//注册系统路由表
@@ -152,6 +157,7 @@ func (c *Client) Start(wg *sync.WaitGroup) error {
 		//客户端可能重置网卡IP
 		err := c.IFace.OverwriteCIDR(config.Current.Device.CIDR)
 		if err != nil {
+			wg.Done()
 			return err
 		}
 	}
@@ -166,11 +172,13 @@ func (c *Client) Start(wg *sync.WaitGroup) error {
 	for i := 0; i < size; i++ {
 		conn, err := c.handler.CreateAndSetup(c.Address, c.Config)
 		if err != nil {
+			wg.Done()
 			return err
 		}
 		//confirm
 		err = c.confirm(conn)
 		if err != nil {
+			wg.Done()
 			return err
 		}
 		num := c.multiConn.Push(conn)
@@ -234,6 +242,7 @@ func (c *Client) Terminate() {
 // @receiver C
 //
 func (c *Client) Stop() {
+	//config.Current.Clear()
 	c.Cancel()
 }
 
