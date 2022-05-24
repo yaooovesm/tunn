@@ -19,8 +19,9 @@ var Current *Application
 type Application struct {
 	Config   config.Config
 	Protocol protocol.Name
-	serv     Service
+	Serv     Service
 	Running  bool
+	Init     bool
 	Error    string
 }
 
@@ -68,48 +69,51 @@ type Service interface {
 	Terminate()
 }
 
-//
-// runService
-// @Description:
-// @receiver app
-// @param serv
-//
-func (app *Application) runService(serv Service) {
-	app.Error = ""
+func (app *Application) InitService() {
 	log.Info("tunnel version : ", version.Version)
 	if version.Develop {
 		_ = log.Warn("当前版本为测试版本！")
 	}
 	//app.PProf()
-	if serv == nil {
+	if app.Serv == nil {
 		_ = log.Warn("tunnel server type not support")
 		os.Exit(-1)
 		return
 	}
-	ch := make(chan error, 1)
-	//TODO 解决重复初始化问题
-	if err := serv.Init(); err != nil {
+	if err := app.Serv.Init(); err != nil {
 		_ = log.Warn("init failed : ", err)
 		os.Exit(-1)
 		return
 	} else {
 		log.Info("service init success...")
 	}
+	app.Init = true
+}
+
+//
+// RunService
+// @Description:
+// @receiver app
+// @param Serv
+//
+func (app *Application) RunService() {
+	app.Error = ""
+	ch := make(chan error, 1)
 	go func() {
 		app.Running = true
-		ch <- serv.Start()
+		ch <- app.Serv.Start()
 	}()
 	for {
 		select {
 		case err := <-ch:
 			if err != nil {
-				serv.Stop()
+				app.Serv.Stop()
 				_ = log.Warn("tunnel exit with error : ", err.Error())
 				app.Error = err.Error()
 				if tunnel.IsAllowRestart(err, true) {
 					log.Info("tunnel restart in 10s...")
 					time.Sleep(time.Second * 10)
-					ch <- serv.Start()
+					ch <- app.Serv.Start()
 				} else {
 					app.Running = false
 					return
@@ -129,14 +133,17 @@ func (app *Application) runService(serv Service) {
 // @receiver app
 //
 func (app *Application) Run() {
-	var serv = tunnel.NewClient()
-	if serv == nil {
-		_ = log.Warn("tunnel server type not support")
-		os.Exit(-1)
-		return
+	if !app.Init {
+		var serv = tunnel.NewClient()
+		if serv == nil {
+			_ = log.Warn("tunnel server type not support")
+			os.Exit(-1)
+			return
+		}
+		app.Serv = serv
+		app.InitService()
 	}
-	app.serv = serv
-	go app.runService(serv)
+	go app.RunService()
 }
 
 //
@@ -145,5 +152,5 @@ func (app *Application) Run() {
 // @receiver app
 //
 func (app *Application) Stop() {
-	app.serv.Terminate()
+	app.Serv.Terminate()
 }
