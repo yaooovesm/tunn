@@ -112,6 +112,22 @@ func (cfg *Config) MergePushed(push PushedConfig) {
 }
 
 //
+// Clear
+// @Description:
+// @receiver cfg
+//
+func (cfg *Config) Clear() {
+	cfg.Global.Address = ""
+	cfg.Global.Protocol = ""
+	cfg.Global.Port = 0
+	cfg.Global.MultiConn = 0
+	cfg.Global.MTU = 0
+	cfg.Routes = []Route{}
+	cfg.Device = Device{}
+	cfg.DataProcess.CipherType = ""
+}
+
+//
 // ToStorageModel
 // @Description:
 // @receiver cfg
