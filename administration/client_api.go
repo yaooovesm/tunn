@@ -35,6 +35,10 @@ func ApiCurrentApplication(ctx *gin.Context) {
 // @param ctx
 //
 func ApiApplicationStart(ctx *gin.Context) {
+	if application.Current != nil && application.Current.Running {
+		responseError(ctx, errors.New("客户端运行中"), "")
+		return
+	}
 	cfg := config.ClientConfigStorage{}
 	err := ctx.BindJSON(&cfg)
 	if err != nil {
