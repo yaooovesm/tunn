@@ -308,9 +308,11 @@ func (c *Client) RXHandler(conn net.Conn, num int) {
 	for {
 		pl, err := reader.Read()
 		if err != nil && err != transmitter.ErrBadPacket {
-			log.Info("[rx][#", num, "] exit with error ", err.Error())
-			c.SetErr(ErrDisconnectAccidentally)
-			c.Stop()
+			log.Info("[rx][#", num, "] exit : ", err.Error())
+			if c.running && c.Error != ErrLogout {
+				c.SetErr(ErrDisconnectAccidentally)
+				c.Stop()
+			}
 			return
 		}
 		//流量处理

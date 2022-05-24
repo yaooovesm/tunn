@@ -12,6 +12,7 @@ var (
 	ErrLogin                  = errors.New("failed to login to server")
 	ErrStoppedByServer        = errors.New("client stopped")
 	ErrRestartByServer        = errors.New("client restart")
+	ErrLogout                 = errors.New("logout")
 )
 
 var (

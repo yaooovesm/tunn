@@ -75,6 +75,9 @@ func (h *AuthClientHandler) OnLogin(err error, key []byte) {
 // @param err
 //
 func (h *AuthClientHandler) OnLogout(err error) {
+	if err == nil {
+		err = ErrLogout
+	}
 	h.Client.SetErr(err)
 	h.Client.Stop()
 	h.Client.multiConn.Close()
