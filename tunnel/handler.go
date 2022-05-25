@@ -86,9 +86,12 @@ func (h *AuthClientHandler) OnLogout(err error) {
 // @Description:
 // @receiver h
 //
-func (h *AuthClientHandler) OnDisconnect() {
+func (h *AuthClientHandler) OnDisconnect(err error) {
+	if err == nil {
+		err = ErrDisconnect
+	}
 	log.Info("disconnected...")
-	h.setClientDown(ErrDisconnect)
+	h.setClientDown(err)
 }
 
 //

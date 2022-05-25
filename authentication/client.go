@@ -112,7 +112,7 @@ func (c *AuthClientV3) handle() {
 			continue
 		}
 		if err != nil {
-			c.handler.OnDisconnect()
+			c.handler.OnDisconnect(nil)
 			return
 		}
 		p := NewTransportPacket()
@@ -244,11 +244,11 @@ func (c *AuthClientV3) Logout() error {
 	}, time.Second*5); err != nil {
 		log.Info("failed to logout : ", err.Error())
 		c.handler.OnLogout(err)
-		c.handler.OnDisconnect()
+		c.handler.OnDisconnect(nil)
 		return ErrAuthFailed
 	}
 	c.handler.OnLogout(nil)
-	c.handler.OnDisconnect()
+	c.handler.OnDisconnect(nil)
 	_ = c.tunnel.Close()
 	log.Info("logout success")
 	return nil

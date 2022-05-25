@@ -43,7 +43,7 @@ type AuthClientHandler interface {
 	// OnDisconnect
 	// @Description:
 	//
-	OnDisconnect()
+	OnDisconnect(err error)
 	//
 	// OnKick
 	// @Description:

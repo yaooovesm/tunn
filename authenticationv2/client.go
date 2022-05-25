@@ -30,9 +30,10 @@ type Client struct {
 	handler   AuthClientHandler   //客户端处理
 	PublicKey []byte              //服务端公钥 (登录后接收)
 	WSKey     string              //ws&wss接入点 (登录后接收)
+	Online    bool                //是否在线
 	version   transmitter.Version //传输版本
 	tunnel    *transmitter.Tunnel //客户端连接
-	Online    bool
+	sig       chan error          //同步信号
 }
 
 //
@@ -67,7 +68,7 @@ func NewClient(handler AuthClientHandler) (client *Client, err error) {
 	//连接到服务器
 	conn, _, err := dialer.Dial(u.String(), nil)
 	if err != nil {
-		//TODO 连接失败,清空当前客户端
+		//此时还没有建立传输连接，只需要关闭此处连接即可
 		_ = conn.Close()
 		return nil, ErrConnectFailed
 	}
@@ -127,7 +128,7 @@ func (c *Client) handle() {
 			continue
 		}
 		if err != nil {
-			//TODO 设置离线
+			c.Disconnect(err)
 			return
 		}
 		p := NewTransportPacket()
@@ -139,8 +140,18 @@ func (c *Client) handle() {
 			switch p.Type {
 			case PacketTypeLogin:
 				//TODO 登录
+				reply := &AuthReply{}
+				//解析reply
+				_ = json.Unmarshal(p.Payload, reply)
+				if reply.Ok {
+					//TODO 登录成功
+				} else {
+					//登录失败
+					c.Disconnect(errors.New(reply.Error))
+				}
 			case PacketTypeLogout:
-				//TODO 离线
+				//无论如何都清除所有连接
+				c.handler.OnLogout(nil)
 			case PacketTypeMsg:
 				c.handler.OnMessage(string(p.Payload))
 			case PacketTypeReport:
@@ -150,16 +161,51 @@ func (c *Client) handle() {
 				//解析reply
 				_ = json.Unmarshal(p.Payload, &reply)
 				_ = log.Warn("server : ", reply.Message)
-				//TODO 服务端控制离线
+				c.handler.OnKick()
 			case PacketTypeRestart:
 				reply := AuthReply{}
 				//解析reply
 				_ = json.Unmarshal(p.Payload, &reply)
 				log.Info("server : ", reply.Message)
-				//TODO 服务端控制重启
+				c.handler.OnRestart()
 			}
 		}
 	}
+}
+
+//
+// Login
+// @Description:
+// @receiver c
+// @return err
+//
+func (c *Client) Login() (err error) {
+	configBytes, err := json.Marshal(config.Current)
+	if err != nil {
+		return ErrAuthBadPacket
+	}
+	p := TransportPacket{
+		Type:    PacketTypeLogin,
+		UUID:    c.UUID,
+		Payload: configBytes,
+	}
+	_, err = c.tunnel.Write(p.Encode())
+	if err != nil {
+		return err
+	}
+	if err := timer.TimeoutTask(func() error {
+		return <-c.sig
+	}, time.Second*30); err != nil {
+		log.Info("failed to login : ", err.Error())
+		c.handler.OnLogin(err, nil)
+		if err == timer.Timeout {
+			return ErrAuthTimeout
+		}
+		return ErrAuthFailed
+	}
+	log.Info("login success")
+	c.handler.OnLogin(nil, c.PublicKey)
+	return nil
 }
 
 //
@@ -173,5 +219,7 @@ func (c *Client) Disconnect(err error) {
 	_ = c.tunnel.Close()
 	//断开通信通道连接
 	//事件必须在上层执行
-	c.handler.OnDisconnect()
+	c.handler.OnDisconnect(err)
+	//设置离线
+	c.Online = false
 }
