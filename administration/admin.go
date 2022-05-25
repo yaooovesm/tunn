@@ -29,9 +29,11 @@ func NewClientAdmin(cfg config.Admin) *ClientAdmin {
 	if !version.Develop {
 		gin.SetMode(gin.ReleaseMode)
 	}
+	engine := gin.New()
+	engine.Use(gin.Recovery())
 	return &ClientAdmin{
 		cfg:    cfg,
-		engine: gin.Default(),
+		engine: engine,
 	}
 }
 

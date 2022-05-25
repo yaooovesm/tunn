@@ -105,41 +105,77 @@ func (app *Application) InitService() {
 // @param Serv
 //
 func (app *Application) RunService() {
-	app.Error = ""
-	app.ch = make(chan error, 1)
-	go func() {
-		app.Running = true
-		app.ch <- app.Serv.Start(app.startWaitGroup)
-	}()
+Loop:
 	for {
 		select {
 		case <-app.terminate:
 			app.Error = "terminated"
-			app.Running = false
-			log.Info("tunnel exited")
-			return
-		case err := <-app.ch:
-			if err != nil {
-				app.Serv.Stop()
-				_ = log.Warn("tunnel exit with error : ", err.Error())
-				app.Error = err.Error()
-				if tunnel.IsAllowRestart(err, true) {
-					log.Info("tunnel restart in 10s...")
-					time.Sleep(time.Second * 10)
-					app.startWaitGroup.Add(1)
-					app.Error = ""
-					app.ch <- app.Serv.Start(app.startWaitGroup)
+			break Loop
+		default:
+			log.Info("tunnel start...")
+			go func() {
+				app.Running = true
+				app.Error = ""
+				app.ch <- app.Serv.Start(app.startWaitGroup)
+			}()
+			select {
+			case err := <-app.ch:
+				if err != nil {
+					app.Serv.Stop()
+					_ = log.Warn("tunnel exit with error : ", err.Error())
+					app.Error = err.Error()
+					if tunnel.IsAllowRestart(err, true) {
+						log.Info("tunnel restart in 10s...")
+						time.Sleep(time.Second * 10)
+						goto Loop
+						//app.Error = ""
+						//app.ch <- app.Serv.Start(app.startWaitGroup)
+					} else {
+						break Loop
+					}
 				} else {
-					app.Running = false
-					return
+					break Loop
 				}
-			} else {
-				app.Running = false
-				log.Info("tunnel exited")
-				return
 			}
 		}
 	}
+	app.Running = false
+	log.Info("tunnel exited")
+	//app.Error = ""
+	//app.ch = make(chan error, 1)
+	//go func() {
+	//	app.Running = true
+	//	app.ch <- app.Serv.Start(app.startWaitGroup)
+	//}()
+	//for {
+	//	select {
+	//	case <-app.terminate:
+	//		app.Error = "terminated"
+	//		app.Running = false
+	//		log.Info("tunnel exited")
+	//		return
+	//	case err := <-app.ch:
+	//		if err != nil {
+	//			app.Serv.Stop()
+	//			_ = log.Warn("tunnel exit with error : ", err.Error())
+	//			app.Error = err.Error()
+	//			if tunnel.IsAllowRestart(err, true) {
+	//				log.Info("tunnel restart in 10s...")
+	//				time.Sleep(time.Second * 10)
+	//				app.startWaitGroup.Add(1)
+	//				app.Error = ""
+	//				app.ch <- app.Serv.Start(app.startWaitGroup)
+	//			} else {
+	//				app.Running = false
+	//				return
+	//			}
+	//		} else {
+	//			app.Running = false
+	//			log.Info("tunnel exited")
+	//			return
+	//		}
+	//	}
+	//}
 }
 
 //
@@ -156,7 +192,6 @@ func (app *Application) Run() error {
 		app.Serv = serv
 		app.InitService()
 	}
-	app.startWaitGroup.Add(1)
 	go app.RunService()
 	app.startWaitGroup.Wait()
 	return nil
@@ -168,11 +203,10 @@ func (app *Application) Run() error {
 // @receiver app
 //
 func (app *Application) Stop() {
-	if app.Serv.Online {
-		_ = app.Serv.AuthClient.Logout()
-	} else {
-		go app.Serv.Terminate()
+	if !app.Serv.Online {
 		app.terminate <- 1
+	} else {
+		app.Serv.Terminate()
 	}
 	//app.ch <- errors.New("terminated")
 }

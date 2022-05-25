@@ -4,9 +4,17 @@
       <el-alert style="margin-bottom: 10px" v-if="error==='logout'||error === 'terminated'"
                 :title="error==='logout'?'已断开连接':'已中止运行'" type="info"
                 show-icon/>
-      <el-alert style="margin-bottom: 10px" v-else-if="error!==''" :title="error" type="error" show-icon></el-alert>
+      <el-alert style="margin-bottom: 10px" v-else-if="error==='client stopped'"
+                title="服务器中断连接" type="info"
+                show-icon/>
+      <el-alert style="margin-bottom: 10px" v-else-if="error==='authentication failed'"
+                title="验证失败" type="warning"
+                show-icon/>
+      <el-alert style="margin-bottom: 10px;text-align: left" v-else-if="error!==''" :title="error" type="error"
+                show-icon></el-alert>
     </div>
     <div v-loading="loading"
+         element-loading-text="处理中，请稍后..."
          class="box-outer"
          style="width: 100%;height:405px;padding-top:30px;padding-bottom: 8px;transition-duration: 0.5s">
       <div class="title" :style="online?'border-left: solid 8px #67C23A;':'border-left: solid 8px #909090'">
@@ -89,6 +97,7 @@ export default {
   name: "LoginBox",
   data() {
     return {
+      timer: undefined,
       displayPwd: "******",
       running: false,
       online: false,
@@ -109,13 +118,21 @@ export default {
       }
     }
   },
-  async mounted() {
-    await this.check()
+  mounted() {
+    this.check()
+    this.timer = setInterval(() => {
+      this.check(true)
+    }, 5000)
     this.loadConfig()
   },
+  unmounted() {
+    clearInterval(this.timer)
+  },
   methods: {
-    check: function () {
-      this.loading = true
+    check: function (silence) {
+      if (!silence) {
+        this.loading = true
+      }
       axios({
         method: "get",
         url: "/api/application/",
@@ -125,10 +142,12 @@ export default {
         this.error = response.data.error
         this.running = response.data.running
         this.online = response.data.online
-        this.loading = false
       }).catch((err) => {
-        this.loading = false
-        this.$utils.HandleError(err)
+        this.error = err.response.data.error
+      }).finally(() => {
+        if (!silence) {
+          this.loading = false
+        }
       })
     },
     stop: function () {
@@ -141,10 +160,9 @@ export default {
       }).catch((err) => {
         this.$utils.HandleError(err)
       }).finally(() => {
-        setTimeout(async () => {
-          await this.check()
-          this.loading = false
-        }, 1000)
+        setTimeout(() => {
+          this.check()
+        }, 1500)
       })
     },
     start: function () {
@@ -174,11 +192,14 @@ export default {
           }
         }
       }).then(() => {
-        this.check()
-        this.loading = false
+
       }).catch((err) => {
         this.loading = false
         this.$utils.HandleError(err)
+      }).finally(() => {
+        setTimeout(() => {
+          this.check()
+        }, 1500)
       })
     },
     loadConfig: function () {

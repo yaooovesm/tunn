@@ -95,6 +95,7 @@ func (c *Client) Init() error {
 // @return error
 //
 func (c *Client) Start(wg *sync.WaitGroup) error {
+	wg.Add(1)
 	//update key
 	config.GenerateCipherKey()
 	//multi conn
@@ -250,7 +251,6 @@ func (c *Client) Terminate() {
 //
 func (c *Client) Stop() {
 	c.running = false
-	//config.Current.Clear()
 	c.Cancel()
 }
 
@@ -262,25 +262,6 @@ func (c *Client) Stop() {
 //
 func (c *Client) SetErr(err error) {
 	c.Error = err
-}
-
-//
-// Logout
-// @Description:
-// @receiver c
-//
-func (c *Client) Logout() {
-	defer func() {
-		if c.multiConn != nil {
-			c.multiConn.Close()
-		}
-	}()
-	err := c.AuthClient.Logout()
-	if err != nil {
-		_ = log.Warn("logout failed : ", err.Error())
-		return
-	}
-	log.Info("client application logout")
 }
 
 //
@@ -328,7 +309,7 @@ func (c *Client) RXHandler(conn net.Conn, num int) {
 		pl, err := reader.Read()
 		if err != nil && err != transmitter.ErrBadPacket {
 			log.Info("[rx][#", num, "] exit : ", err.Error())
-			if c.running && c.Error != ErrLogout {
+			if c.running && c.Error == nil {
 				c.SetErr(ErrDisconnectAccidentally)
 				c.Stop()
 			}
@@ -336,7 +317,5 @@ func (c *Client) RXHandler(conn net.Conn, num int) {
 		}
 		//流量处理
 		_, _ = c.IFace.Write(c.RxFP.Process(pl))
-		//n, _ := c.IFace.Write(c.RxFP.Process(pl))
-		//fmt.Println("rx ", n, " bytes dst = ", waterutil.IPv4Destination(pl))
 	}
 }

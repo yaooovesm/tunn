@@ -78,9 +78,7 @@ func (h *AuthClientHandler) OnLogout(err error) {
 	if err == nil {
 		err = ErrLogout
 	}
-	h.Client.SetErr(err)
-	h.Client.Stop()
-	h.Client.multiConn.Close()
+	h.setClientDown(err)
 }
 
 //
@@ -90,9 +88,7 @@ func (h *AuthClientHandler) OnLogout(err error) {
 //
 func (h *AuthClientHandler) OnDisconnect() {
 	log.Info("disconnected...")
-	h.Client.SetErr(ErrDisconnect)
-	h.Client.Stop()
-	h.Client.multiConn.Close()
+	h.setClientDown(ErrDisconnect)
 }
 
 //
@@ -101,9 +97,7 @@ func (h *AuthClientHandler) OnDisconnect() {
 // @receiver h
 //
 func (h *AuthClientHandler) OnKick() {
-	h.Client.SetErr(ErrStoppedByServer)
-	h.Client.Stop()
-	h.Client.multiConn.Close()
+	h.setClientDown(ErrStoppedByServer)
 }
 
 //
@@ -112,7 +106,17 @@ func (h *AuthClientHandler) OnKick() {
 // @receiver h
 //
 func (h *AuthClientHandler) OnRestart() {
-	h.Client.SetErr(ErrRestartByServer)
+	h.setClientDown(ErrRestartByServer)
+}
+
+//
+// setClientDown
+// @Description:
+// @receiver h
+// @param err
+//
+func (h *AuthClientHandler) setClientDown(err error) {
+	h.Client.SetErr(err)
 	h.Client.Stop()
 	h.Client.multiConn.Close()
 }

@@ -247,9 +247,10 @@ func (c *AuthClientV3) Logout() error {
 		c.handler.OnDisconnect()
 		return ErrAuthFailed
 	}
-	log.Info("logout success")
 	c.handler.OnLogout(nil)
-	//c.handler.OnDisconnect()
+	c.handler.OnDisconnect()
+	_ = c.tunnel.Close()
+	log.Info("logout success")
 	return nil
 }
 
@@ -322,4 +323,13 @@ func (c *AuthClientV3) Message(msg string) (err error) {
 	}
 	_, err = c.tunnel.Write(p.Encode())
 	return
+}
+
+//
+// ForceClose
+// @Description:
+// @receiver c
+//
+func (c *AuthClientV3) ForceClose() error {
+	return c.tunnel.Close()
 }
