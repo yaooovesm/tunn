@@ -7,6 +7,9 @@
       <el-alert style="margin-bottom: 10px" v-else-if="error==='client stopped'"
                 title="服务器中断连接" type="info"
                 show-icon/>
+      <el-alert style="margin-bottom: 10px" v-else-if="error==='client restart'"
+                title="连接重置中" type="info"
+                show-icon/>
       <el-alert style="margin-bottom: 10px" v-else-if="error==='authentication failed'"
                 title="验证失败" type="warning"
                 show-icon/>
