@@ -69,7 +69,9 @@ func ApiGetCurrentConfigAll(ctx *gin.Context) {
 			online = application.Current.Serv.Online
 		}
 	}
-	current := config.Config{}
+	current := config.Config{
+		Runtime: config.Current.Runtime,
+	}
 	if running {
 		current = config.Current
 		current.User.Password = ""
