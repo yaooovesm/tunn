@@ -61,12 +61,15 @@
               <el-descriptions-item label-class-name="description-label" label="内网地址" width="33.3%">
                 {{ properties.config.device.cidr }}
               </el-descriptions-item>
-              <el-descriptions-item label-class-name="description-label" label="传输协议" width="33.3%">
-                {{ properties.config.global.protocol }}
-              </el-descriptions-item>
-              <el-descriptions-item label-class-name="description-label" label="数据处理" width="33.3%">
-                <el-tag size="small" effect="dark" :type="properties.config.data_process.encrypt === ''?'info':''"
+              <el-descriptions-item label-class-name="description-label" label="传输" width="66.6%" :span="2">
+                <el-tag size="small" effect="dark" :type="properties.config.global.protocol === ''?'info':''"
                         style="margin-left: 5px">
+                  {{
+                    properties.config.global.protocol === "" ? "未知协议" : properties.config.global.protocol.toUpperCase()
+                  }}
+                </el-tag>
+                &nbsp;+&nbsp;
+                <el-tag size="small" effect="dark" :type="properties.config.data_process.encrypt === ''?'info':''">
                   {{ properties.config.data_process.encrypt === "" ? "无" : properties.config.data_process.encrypt }}
                 </el-tag>
               </el-descriptions-item>
@@ -75,6 +78,9 @@
               </el-descriptions-item>
               <el-descriptions-item label-class-name="description-label" label="MTU" width="33.3%">
                 {{ properties.config.global.mtu }}
+              </el-descriptions-item>
+              <el-descriptions-item label-class-name="description-label" label="设置" width="33.3%">
+                <config-btn :account="properties.config.user.Account"/>
               </el-descriptions-item>
             </el-descriptions>
             <el-descriptions
@@ -112,10 +118,11 @@
 <script>
 import axios from "axios";
 import RunningIndicator from "@/components/indicators/RunningIndicator";
+import ConfigBtn from "@/components/config/ConfigBtn";
 
 export default {
   name: "StatusOverview",
-  components: {RunningIndicator},
+  components: {ConfigBtn, RunningIndicator},
   data() {
     return {
       properties: {

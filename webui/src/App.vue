@@ -8,7 +8,24 @@
 
 export default {
   name: 'App',
-  components: {}
+  components: {},
+  mounted() {
+    /*区分关闭和刷新，关闭退出登录 start*/
+    window.onload = function () {
+      if (!window.sessionStorage["login"]) {
+        localStorage.removeItem("tunn")
+        location.reload()
+      } else {
+        window.sessionStorage.removeItem("login");
+      }
+    };
+    window.onunload = function () {
+      window.sessionStorage["login"] = true;
+    };
+    window.onbeforeunload = function () {
+      window.sessionStorage["login"] = true;
+    };
+  }
 }
 </script>
 
