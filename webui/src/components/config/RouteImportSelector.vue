@@ -72,7 +72,7 @@ export default {
       this.loading = true
       axios({
         method: "get",
-        url: "/api/v1/cfg/route/available",
+        url: "/api/remote/route/available",
         data: {}
       }).then(res => {
         let response = res.data

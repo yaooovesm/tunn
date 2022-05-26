@@ -51,5 +51,8 @@ func (ad *ClientAdminApi) Serv() {
 	{
 		remoteGroup := api.Group("/remote")
 		remoteGroup.GET("/route/available", ApiGetAvailableExports)
+		remoteGroup.GET("/route/reset", ApiResetRoutes)
+		remoteGroup.POST("/route/save", ApiUpdateRoutes)
+		remoteGroup.GET("/config", ApiGetConfig)
 	}
 }

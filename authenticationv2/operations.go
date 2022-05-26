@@ -3,6 +3,9 @@ package authenticationv2
 type OperationName string
 
 const (
+	OperationGetConfig           OperationName = "OperationGetConfig"
+	OperationUpdateRoutes        OperationName = "OperationUpdateRoutes"
+	OperationResetRoutes         OperationName = "ResetRoutes"
 	OperationGetAvailableExports OperationName = "GetAvailableExports"
 )
 

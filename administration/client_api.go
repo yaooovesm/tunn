@@ -108,3 +108,73 @@ func ApiGetAvailableExports(ctx *gin.Context) {
 	}
 	responseSuccess(ctx, res.Result, "")
 }
+
+//
+// ApiGetConfig
+// @Description:
+// @param ctx
+//
+func ApiGetConfig(ctx *gin.Context) {
+	if application.Current == nil || !application.Current.Running {
+		responseError(ctx, errors.New("没有运行中的客户端"), "")
+		return
+	}
+	res, err := application.Current.Serv.AuthClient.Operation(authenticationv2.OperationGetConfig, nil)
+	if err != nil {
+		responseError(ctx, err, "")
+		return
+	}
+	responseSuccess(ctx, res.Result, "")
+}
+
+//
+// ApiUpdateRoutes
+// @Description:
+// @param ctx
+//
+func ApiUpdateRoutes(ctx *gin.Context) {
+	if application.Current == nil || !application.Current.Running {
+		responseError(ctx, errors.New("没有运行中的客户端"), "")
+		return
+	}
+	var routes []config.Route
+	err := ctx.BindJSON(&routes)
+	if err != nil {
+		response400(ctx)
+		return
+	}
+	result, err := application.Current.Serv.AuthClient.Operation(authenticationv2.OperationUpdateRoutes, map[string]interface{}{
+		"routes": routes,
+	})
+	if err != nil {
+		responseError(ctx, err, "")
+		return
+	}
+	if result.Error == "" {
+		responseSuccess(ctx, "", "保存成功")
+	} else {
+		responseError(ctx, errors.New(result.Error), "")
+	}
+}
+
+//
+// ApiResetRoutes
+// @Description:
+// @param ctx
+//
+func ApiResetRoutes(ctx *gin.Context) {
+	if application.Current == nil || !application.Current.Running {
+		responseError(ctx, errors.New("没有运行中的客户端"), "")
+		return
+	}
+	result, err := application.Current.Serv.AuthClient.Operation(authenticationv2.OperationResetRoutes, nil)
+	if err != nil {
+		responseError(ctx, err, "")
+		return
+	}
+	if result.Error == "" {
+		responseSuccess(ctx, "", "保存成功")
+	} else {
+		responseError(ctx, errors.New(result.Error), "")
+	}
+}

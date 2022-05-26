@@ -204,7 +204,6 @@ Loop:
 			case PacketTypeOperation:
 				reply := AuthReply{}
 				_ = json.Unmarshal(p.Payload, &reply)
-				log.Info("op response : ", reply.Message)
 				res := OperationResult{}
 				_ = json.Unmarshal([]byte(reply.Message), &res)
 				c.opsig <- res

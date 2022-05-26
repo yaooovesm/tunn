@@ -161,19 +161,19 @@ export default {
             type: 'warning',
           }
       ).then(() => {
-        // axios({
-        //   method: "get",
-        //   url: "/api/v1/cfg/reset/" + this.configId,
-        //   data: {}
-        // }).then(res => {
-        //   let response = res.data
-        //   this.$utils.Success("操作成功", response.msg)
-        // }).catch((err) => {
-        //   this.$utils.HandleError(err)
-        // }).finally(() => {
-        //   this.loading = false
-        //   this.load()
-        // })
+        axios({
+          method: "get",
+          url: "/api/remote/route/reset/",
+          data: {}
+        }).then(res => {
+          let response = res.data
+          this.$utils.Success("操作成功", response.msg)
+        }).catch((err) => {
+          this.$utils.HandleError(err)
+        }).finally(() => {
+          this.loading = false
+          this.load()
+        })
       }).catch(() => {
       }).finally(() => {
         this.loading = false
@@ -194,37 +194,29 @@ export default {
       this.addImportValue = ""
     },
     save: function () {
-      // this.loading = true
-      // let data = {
-      //   id: this.configId,
-      //   device: {
-      //     cidr: "",
-      //     dns: "",
-      //   }
-      // }
-      // data.routes = [...this.importRoutes, ...this.exportRoutes]
-      // axios({
-      //   method: "post",
-      //   url: "/api/v1/cfg/update",
-      //   data: data
-      // }).then(() => {
-      //   this.$utils.Success("提示", "更新配置成功")
-      //   this.load()
-      //   this.loading = false
-      // }).catch((err) => {
-      //   this.$utils.HandleError(err)
-      //   this.loading = false
-      // })
+      this.loading = true
+      axios({
+        method: "post",
+        url: "/api/remote/route/save",
+        data: [...this.importRoutes, ...this.exportRoutes]
+      }).then(() => {
+        this.$utils.Success("提示", "更新配置成功")
+        this.load()
+        this.loading = false
+      }).catch((err) => {
+        this.$utils.HandleError(err)
+        this.loading = false
+      })
     },
     load: function () {
       this.loading = true
       axios({
         method: "get",
-        url: "/api/config/all",
+        url: "/api/remote/config/",
         data: {}
       }).then(res => {
         let response = res.data
-        let routes = response.data.config.route
+        let routes = response.data.routes
         let imports = []
         let exports = []
         for (let i in routes) {
