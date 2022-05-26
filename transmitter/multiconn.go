@@ -97,6 +97,9 @@ func (m *MultiConn) election() {
 // @receiver m
 //
 func (m *MultiConn) Close() {
+	if m.Size <= 0 {
+		return
+	}
 	m.Lock()
 	for i := range m.conns {
 		if m.conns[i] != nil {

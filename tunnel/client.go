@@ -9,7 +9,7 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"tunn/authentication"
+	"tunn/authenticationv2"
 	"tunn/config"
 	"tunn/config/protocol"
 	"tunn/device"
@@ -29,7 +29,7 @@ type Client struct {
 	Context          context.Context
 	Cancel           context.CancelFunc
 	Error            error
-	AuthClient       *authentication.AuthClientV3
+	AuthClient       *authenticationv2.Client
 	Address          string
 	tunnelIndex      int
 	maxIndex         int
@@ -105,12 +105,19 @@ func (c *Client) Start(wg *sync.WaitGroup) error {
 	c.Context = ctx
 	c.Cancel = cancelFunc
 	//auth
-	clientV3, err := authentication.NewClientV3(&AuthClientHandler{Client: c})
+	//clientV3, err := authentication.NewClientV3(&AuthClientHandler{Client: c})
+	client, err := authenticationv2.NewClient(&AuthClientHandler{Client: c})
 	if err != nil {
 		wg.Done()
 		return err
 	}
-	c.AuthClient = clientV3
+	c.AuthClient = client
+	//connect
+	err = c.AuthClient.Connect()
+	if err != nil {
+		wg.Done()
+		return err
+	}
 	//login
 	err = c.AuthClient.Login()
 	if err != nil {
@@ -214,6 +221,7 @@ func (c *Client) Start(wg *sync.WaitGroup) error {
 func (c *Client) confirm(conn net.Conn) error {
 	return timer.TimeoutTask(func() error {
 		uuid := c.AuthClient.UUID
+		log.Info("send confirm packet : ", uuid)
 		_, err := conn.Write([]byte(uuid))
 		if err != nil {
 			return err

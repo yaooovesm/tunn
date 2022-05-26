@@ -3,6 +3,7 @@ package authenticationv2
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	log "github.com/cihub/seelog"
@@ -13,6 +14,7 @@ import (
 	"strings"
 	"time"
 	"tunn/config"
+	"tunn/networking"
 	"tunn/transmitter"
 	"tunn/utils/timer"
 )
@@ -48,6 +50,25 @@ func NewClient(handler AuthClientHandler) (client *Client, err error) {
 	if config.Current.Security.CertPem == "" {
 		return nil, ErrCertFileNotFound
 	}
+	//创建客户端
+	c := &Client{
+		UUID:    UUID(),
+		handler: handler,
+		version: transmitter.V2,
+		Online:  false,
+		sig:     make(chan error, 1),
+	}
+	return c, nil
+}
+
+//
+// Connect
+// @Description:
+// @receiver c
+// @return *transmitter.WSConn
+// @return error
+//
+func (c *Client) Connect() error {
 	//设置连接地址
 	address := strings.Join([]string{config.Current.Auth.Address, strconv.Itoa(config.Current.Auth.Port)}, ":")
 	log.Info("connect to authentication server : ", address)
@@ -55,7 +76,7 @@ func NewClient(handler AuthClientHandler) (client *Client, err error) {
 	pool := x509.NewCertPool()
 	ca, err := ioutil.ReadFile(config.Current.Security.CertPem)
 	if err != nil {
-		return nil, log.Error("cannot load cert : ", err)
+		return log.Error("cannot load cert : ", err)
 	}
 	pool.AppendCertsFromPEM(ca)
 	//准备连接
@@ -70,25 +91,19 @@ func NewClient(handler AuthClientHandler) (client *Client, err error) {
 	if err != nil {
 		//此时还没有建立传输连接，只需要关闭此处连接即可
 		_ = conn.Close()
-		return nil, ErrConnectFailed
+		return ErrConnectFailed
 	}
 	wsConn := transmitter.WrapWSConn(conn)
-	v := transmitter.V2
-	c := &Client{
-		UUID:    UUID(),
-		handler: handler,
-		version: v,
-		tunnel:  transmitter.NewTunnel(wsConn, v),
-		Online:  false,
-	}
+	//设置连接
+	c.tunnel = transmitter.NewTunnel(wsConn, c.version)
 	//确认连接(握手,发送uuid)
 	err = c.confirm(wsConn)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	//处理
 	go c.handle()
-	return c, nil
+	return nil
 }
 
 //
@@ -122,13 +137,14 @@ func (c *Client) confirm(conn *transmitter.WSConn) error {
 // @receiver c
 //
 func (c *Client) handle() {
+Loop:
 	for {
 		pl, err := c.tunnel.Read()
 		if err == transmitter.ErrBadPacket {
 			continue
 		}
 		if err != nil {
-			c.Disconnect(err)
+			c.Disconnect(err, true)
 			return
 		}
 		p := NewTransportPacket()
@@ -139,17 +155,26 @@ func (c *Client) handle() {
 		if p.UUID == c.UUID && p.Type != PacketTypeUnknown {
 			switch p.Type {
 			case PacketTypeLogin:
-				//TODO 登录
 				reply := &AuthReply{}
 				//解析reply
 				_ = json.Unmarshal(p.Payload, reply)
 				if reply.Ok {
-					//TODO 登录成功
+					err := c.afterLogin(reply)
+					if err != nil {
+						//处理失败
+						c.sig <- err
+						//退出循环
+						break Loop
+					}
 				} else {
 					//登录失败
-					c.Disconnect(errors.New(reply.Error))
+					c.Disconnect(errors.New(reply.Error), true)
+					//退出循环
+					break Loop
 				}
+				c.sig <- nil
 			case PacketTypeLogout:
+				c.sig <- nil
 				//无论如何都清除所有连接
 				c.handler.OnLogout(nil)
 			case PacketTypeMsg:
@@ -162,12 +187,16 @@ func (c *Client) handle() {
 				_ = json.Unmarshal(p.Payload, &reply)
 				_ = log.Warn("server : ", reply.Message)
 				c.handler.OnKick()
+				//断开当前客户端
+				c.Disconnect(nil, false)
 			case PacketTypeRestart:
 				reply := AuthReply{}
 				//解析reply
 				_ = json.Unmarshal(p.Payload, &reply)
 				log.Info("server : ", reply.Message)
 				c.handler.OnRestart()
+				//断开当前客户端,重启后将会重新创建客户端
+				c.Disconnect(nil, false)
 			}
 		}
 	}
@@ -193,6 +222,7 @@ func (c *Client) Login() (err error) {
 	if err != nil {
 		return err
 	}
+	//等待信号
 	if err := timer.TimeoutTask(func() error {
 		return <-c.sig
 	}, time.Second*30); err != nil {
@@ -201,10 +231,95 @@ func (c *Client) Login() (err error) {
 		if err == timer.Timeout {
 			return ErrAuthTimeout
 		}
-		return ErrAuthFailed
+		return err
 	}
 	log.Info("login success")
 	c.handler.OnLogin(nil, c.PublicKey)
+	return nil
+}
+
+//
+// afterLogin
+// @Description:
+// @receiver c
+// @param reply
+// @return error
+//
+func (c *Client) afterLogin(reply *AuthReply) error {
+	data := make(map[string]string)
+	//解码服务端发送的配置文件
+	err := json.Unmarshal([]byte(reply.Message), &data)
+	if err != nil {
+		return err
+	}
+	//接收ws_key
+	if wskey, ok := data["ws_key"]; ok && wskey != "" {
+		c.WSKey = wskey
+	}
+	//接收配置
+	if cfg, ok := data["config"]; ok && cfg != "" {
+		pushedConfig := config.PushedConfig{}
+		err := json.Unmarshal([]byte(cfg), &pushedConfig)
+		if err != nil {
+			return errors.New("failed to fetch config")
+		}
+		if pushedConfig.Device.CIDR == "" {
+			return errors.New("failed to get a address")
+		}
+		//覆盖配置到本地
+		config.Current.MergePushed(pushedConfig)
+		for i := range pushedConfig.Routes {
+			//当有网络暴露时
+			if pushedConfig.Routes[i].Option == config.RouteOptionExport {
+				//开启路由支持
+				networking.RouteSupport()
+				break
+			}
+		}
+	} else {
+		return errors.New("failed to fetch config")
+	}
+	//接收公钥
+	if key, ok := data["key"]; ok && key != "" {
+		keyBytes, err := hex.DecodeString(key)
+		if err != nil {
+			return err
+		}
+		c.PublicKey = keyBytes
+		log.Info("receive ", len(c.PublicKey), " bytes key from server")
+	}
+	return nil
+}
+
+func (c *Client) Logout() error {
+	if !c.Online {
+		return errors.New("client offline")
+	}
+	//读取当前配置文件
+	configBytes, err := json.Marshal(config.Current)
+	if err != nil {
+		return ErrAuthBadPacket
+	}
+	//发送包
+	p := TransportPacket{
+		Type:    PacketTypeLogout,
+		UUID:    c.UUID,
+		Payload: configBytes,
+	}
+	_, err = c.tunnel.Write(p.Encode())
+	if err != nil {
+		return ErrAuthBadPacket
+	}
+	//等待5秒服务器响应
+	_ = timer.TimeoutTask(func() error {
+		return <-c.sig
+	}, time.Second*5)
+	//无论响应如何都关闭连接
+	//退出登录事件
+	c.handler.OnLogout(nil)
+	//清除登录
+	c.Disconnect(nil, false)
+	log.Info("logout success")
 	return nil
 }
 
@@ -214,12 +329,48 @@ func (c *Client) Login() (err error) {
 // @receiver c
 // @param err
 //
-func (c *Client) Disconnect(err error) {
+func (c *Client) Disconnect(err error, event bool) {
 	//断开认证通道连接
 	_ = c.tunnel.Close()
 	//断开通信通道连接
 	//事件必须在上层执行
-	c.handler.OnDisconnect(err)
+	if event {
+		c.handler.OnDisconnect(err)
+	}
 	//设置离线
 	c.Online = false
+}
+
+//
+// Report
+// @Description:
+// @receiver c
+// @param data
+// @return error
+//
+func (c *Client) Report(data []byte) (err error) {
+	p := TransportPacket{
+		Type:    PacketTypeReport,
+		UUID:    c.UUID,
+		Payload: data,
+	}
+	_, err = c.tunnel.Write(p.Encode())
+	return
+}
+
+//
+// Message
+// @Description:
+// @receiver c
+// @param msg
+// @return error
+//
+func (c *Client) Message(msg string) (err error) {
+	p := TransportPacket{
+		Type:    PacketTypeMsg,
+		UUID:    c.UUID,
+		Payload: []byte(msg),
+	}
+	_, err = c.tunnel.Write(p.Encode())
+	return
 }
