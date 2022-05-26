@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "8d904db8-4f40-40f7-b141-7b3d07ddb4ab",
+		"_postman_id": "63a43856-a79d-49f1-b8e2-0f1d1d05be0a",
 		"name": "tunn_api",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -143,7 +143,10 @@
 					"name": "获取当前连接属性",
 					"request": {
 						"method": "GET",
-						"header": []
+						"header": [],
+						"url": {
+							"raw": ""
+						}
 					},
 					"response": []
 				}
@@ -216,6 +219,71 @@
 							"path": [
 								"route",
 								"available"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "更新路由",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n    {\r\n        \"network\": \"20.20.20.20/32\",\r\n        \"option\": \"export\"\r\n    }\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{base_url}}{{api_ver}}remote/route/save",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{base_url}}{{api_ver}}remote"
+							],
+							"path": [
+								"route",
+								"save"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "重置路由",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{base_url}}{{api_ver}}remote/route/reset",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{base_url}}{{api_ver}}remote"
+							],
+							"path": [
+								"route",
+								"reset"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "获取配置",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{base_url}}{{api_ver}}remote/config",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{base_url}}{{api_ver}}remote"
+							],
+							"path": [
+								"config"
 							]
 						}
 					},
