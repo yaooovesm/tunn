@@ -142,6 +142,11 @@ export default {
         data: {}
       }).then((res) => {
         let response = res.data
+        if (this.error !== response.data.error ||
+            this.running !== response.data.running ||
+            this.online !== response.data.online) {
+          this.$emit("updated")
+        }
         this.error = response.data.error
         this.running = response.data.running
         this.online = response.data.online

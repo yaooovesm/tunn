@@ -11,11 +11,11 @@
       <el-main style="padding: 50px 20vh">
         <div style="padding-bottom: 100px">
           <el-row :gutter="30">
-            <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
-              <login-box ref="login_box"/>
+            <el-col :xs="24" :sm="24" :md="8" :lg="6" :xl="6">
+              <login-box ref="login_box" @updated="updateOverview"/>
             </el-col>
-            <el-col :xs="24" :sm="24" :md="16" :lg="16" :xl="16">
-              <status-overview/>
+            <el-col :xs="24" :sm="24" :md="16" :lg="18" :xl="18">
+              <status-overview ref="overview"/>
             </el-col>
             <!--            <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" style="margin-top: 30px">-->
             <!--              <client-control/>-->
@@ -56,6 +56,9 @@ export default {
     //clearInterval(this.timer)
   },
   methods: {
+    updateOverview: function () {
+      this.$refs.overview.update()
+    },
     getAppInfo: function () {
       axios({
         method: "get",
