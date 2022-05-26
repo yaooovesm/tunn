@@ -47,4 +47,9 @@ func (ad *ClientAdminApi) Serv() {
 		adminGroup.GET("/", ApiAdminInfo)
 		adminGroup.POST("/login", ApiAdminLogin)
 	}
+	//remote
+	{
+		remoteGroup := api.Group("/remote")
+		remoteGroup.GET("/route/available", ApiGetAvailableExports)
+	}
 }

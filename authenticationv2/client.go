@@ -28,14 +28,15 @@ import (
 // @Description:
 //
 type Client struct {
-	UUID      string              //客户端唯一ID
-	handler   AuthClientHandler   //客户端处理
-	PublicKey []byte              //服务端公钥 (登录后接收)
-	WSKey     string              //ws&wss接入点 (登录后接收)
-	Online    bool                //是否在线
-	version   transmitter.Version //传输版本
-	tunnel    *transmitter.Tunnel //客户端连接
-	sig       chan error          //同步信号
+	UUID      string               //客户端唯一ID
+	handler   AuthClientHandler    //客户端处理
+	PublicKey []byte               //服务端公钥 (登录后接收)
+	WSKey     string               //ws&wss接入点 (登录后接收)
+	Online    bool                 //是否在线
+	version   transmitter.Version  //传输版本
+	tunnel    *transmitter.Tunnel  //客户端连接
+	sig       chan error           //同步信号
+	opsig     chan OperationResult //远程操作信号
 }
 
 //
@@ -57,6 +58,7 @@ func NewClient(handler AuthClientHandler) (client *Client, err error) {
 		version: transmitter.V2,
 		Online:  false,
 		sig:     make(chan error, 1),
+		opsig:   make(chan OperationResult, 1),
 	}
 	return c, nil
 }
@@ -197,6 +199,13 @@ Loop:
 				c.handler.OnRestart()
 				//断开当前客户端,重启后将会重新创建客户端
 				c.Disconnect(nil, false)
+			case PacketTypeOperation:
+				reply := AuthReply{}
+				_ = json.Unmarshal(p.Payload, &reply)
+				log.Info("op response : ", reply.Message)
+				res := OperationResult{}
+				_ = json.Unmarshal([]byte(reply.Message), &res)
+				c.opsig <- res
 			}
 		}
 	}
@@ -373,4 +382,38 @@ func (c *Client) Message(msg string) (err error) {
 	}
 	_, err = c.tunnel.Write(p.Encode())
 	return
+}
+
+//
+// Operation
+// @Description:
+// @receiver c
+// @param name
+// @param params
+//
+func (c *Client) Operation(name OperationName, params map[string]interface{}) (OperationResult, error) {
+	operation := Operation{
+		UUID:      c.UUID,
+		User:      config.Current.User.Account,
+		Operation: name,
+		Params:    params,
+	}
+	b, err := json.Marshal(operation)
+	if err != nil {
+		//error
+		return OperationResult{}, err
+	}
+	p := TransportPacket{
+		Type:    PacketTypeOperation,
+		UUID:    c.UUID,
+		Payload: b,
+	}
+	_, err = c.tunnel.Write(p.Encode())
+	//等待结果
+	res := OperationResult{}
+	//60秒超时
+	return res, timer.TimeoutTask(func() error {
+		res = <-c.opsig
+		return nil
+	}, time.Minute)
 }

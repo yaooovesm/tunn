@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"tunn/application"
+	"tunn/authenticationv2"
 	"tunn/config"
 	"tunn/version"
 )
@@ -88,5 +89,22 @@ func ApiApplicationStop(ctx *gin.Context) {
 	}
 	application.Current.Stop()
 	responseSuccess(ctx, "", "停止成功")
+}
 
+//
+// ApiGetAvailableExports
+// @Description:
+// @param ctx
+//
+func ApiGetAvailableExports(ctx *gin.Context) {
+	if application.Current == nil || !application.Current.Running {
+		responseError(ctx, errors.New("没有运行中的客户端"), "")
+		return
+	}
+	res, err := application.Current.Serv.AuthClient.Operation(authenticationv2.OperationGetAvailableExports, nil)
+	if err != nil {
+		responseError(ctx, err, "")
+		return
+	}
+	responseSuccess(ctx, res.Result, "")
 }
