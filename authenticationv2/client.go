@@ -92,7 +92,9 @@ func (c *Client) Connect() error {
 	conn, _, err := dialer.Dial(u.String(), nil)
 	if err != nil {
 		//此时还没有建立传输连接，只需要关闭此处连接即可
-		_ = conn.Close()
+		if conn != nil {
+			_ = conn.Close()
+		}
 		return ErrConnectFailed
 	}
 	wsConn := transmitter.WrapWSConn(conn)
