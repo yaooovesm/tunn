@@ -198,6 +198,30 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "remote",
+			"item": [
+				{
+					"name": "获取可供导入的路由",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{base_url}}{{api_ver}}remote/route/available",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{base_url}}{{api_ver}}remote"
+							],
+							"path": [
+								"route",
+								"available"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	]
 }
