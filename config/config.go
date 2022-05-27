@@ -35,10 +35,9 @@ type Config struct {
 //
 type Global struct {
 	Tunnel
-	MTU          int  `json:"mtu"`
-	Pprof        int  `json:"pprof"`
-	DefaultRoute bool `json:"default_route"`
-	MultiConn    int  `json:"multi_connection"`
+	MTU       int `json:"mtu"`
+	Pprof     int `json:"pprof"`
+	MultiConn int `json:"multi_connection"`
 }
 
 //
@@ -79,7 +78,6 @@ func (cfg *Config) ReadFromFile(path string) {
 func (cfg *Config) SetDefaultValue() {
 	cfg.Global.Protocol = protocol.TCP
 	cfg.Global.MTU = 1400
-	cfg.Global.DefaultRoute = false
 }
 
 //

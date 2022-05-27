@@ -23,10 +23,9 @@ func TestConfigRead(t *testing.T) {
 				Port:     0,
 				Protocol: "",
 			},
-			MTU:          0,
-			Pprof:        0,
-			DefaultRoute: false,
-			MultiConn:    0,
+			MTU:       0,
+			Pprof:     0,
+			MultiConn: 0,
 		},
 		User: User{
 			Account:  "",
