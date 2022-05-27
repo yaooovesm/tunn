@@ -7,7 +7,7 @@ import (
 )
 
 func TestLoad(t *testing.T) {
-	Current.ReadFromFile("D:\\code\\golang\\tunnel\\common\\config\\tunnel_client.json")
+	Current.ReadFromFile("D:\\code\\golang\\tunnel\\common\\config\\config_full.json")
 	marshal, err := json.Marshal(Current)
 	if err != nil {
 		return
