@@ -15,14 +15,15 @@
               <login-box ref="login_box" @updated="updateOverview"/>
             </el-col>
             <el-col :xs="24" :sm="24" :md="16" :lg="18" :xl="18">
-              <status-overview ref="overview"/>
+              <el-row :gutter="10">
+                <el-col :span="24">
+                  <flow-overview :passive="false"/>
+                </el-col>
+                <el-col :span="24" style="margin-top: 30px">
+                  <status-overview ref="overview"/>
+                </el-col>
+              </el-row>
             </el-col>
-            <!--            <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" style="margin-top: 30px">-->
-            <!--              <client-control/>-->
-            <!--            </el-col>-->
-            <!--            <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" style="margin-top: 30px">-->
-            <!--              <config-overview/>-->
-            <!--            </el-col>-->
           </el-row>
         </div>
       </el-main>
@@ -36,10 +37,11 @@ import StatusOverview from "@/components/dashboard/StatusOverview";
 // import ConfigOverview from "@/components/dashboard/ConfigOverview";
 import LoginBox from "@/components/login/LoginBox";
 import axios from "axios";
+import FlowOverview from "@/components/dashboard/FlowOverview";
 
 export default {
   name: "DashboardPage",
-  components: {LoginBox, StatusOverview},
+  components: {FlowOverview, LoginBox, StatusOverview},
   data() {
     return {
       timer: undefined,

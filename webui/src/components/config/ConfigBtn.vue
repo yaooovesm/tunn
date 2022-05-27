@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="account!==''">
-      <el-button size="small" @click="$refs.config.show(account)">网络配置</el-button>
+      <el-button size="small" type="primary" @click="$refs.config.show(account)">网络配置</el-button>
       <user-config ref="config"/>
     </div>
     <div v-else>

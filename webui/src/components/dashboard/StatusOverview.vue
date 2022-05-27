@@ -10,29 +10,29 @@
           <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
             <el-descriptions
                 direction="vertical"
-                :column="3"
+                :column="4"
                 size="small"
                 border
             >
               <template #title>
                 <div style="color: #606060;font-size: 14px">客户端</div>
               </template>
-              <el-descriptions-item label-class-name="description-label" label="网卡状态" width="33.3%">
+              <el-descriptions-item label-class-name="description-label" label="网卡状态" width="25%">
                 <running-indicator style="line-height: 34px" :flag="properties.initialized" running-text="已初始化"
                                    stopped-text="未初始化"/>
               </el-descriptions-item>
-              <el-descriptions-item label-class-name="description-label" label="在线状态" width="33.3%">
+              <el-descriptions-item label-class-name="description-label" label="在线状态" width="25%">
                 <running-indicator style="line-height: 34px" :flag="properties.online" running-text="在线"
                                    stopped-text="离线"/>
               </el-descriptions-item>
-              <el-descriptions-item label-class-name="description-label" label="运行状态" width="33.3%">
+              <el-descriptions-item label-class-name="description-label" label="运行状态" width="25%">
                 <running-indicator style="line-height: 34px" :flag="properties.running" running-text="运行中"
                                    stopped-text="已停止"/>
               </el-descriptions-item>
-              <el-descriptions-item label-class-name="description-label" label="版本" width="33.3%">
+              <el-descriptions-item label-class-name="description-label" label="版本" width="25%">
                 {{ properties.config.runtime.app === "" ? "unknown" : properties.config.runtime.app }}
               </el-descriptions-item>
-              <el-descriptions-item label-class-name="description-label" label="平台" width="66.6%">
+              <el-descriptions-item label-class-name="description-label" label="平台" width="100%">
                 <template #label>
                   <el-tag size="small" effect="dark" :type="properties.config.runtime.os === ''?'info':''">
                     {{ properties.config.runtime.os === "" ? "未知平台" : properties.config.runtime.os }}
@@ -50,7 +50,7 @@
           <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
             <el-descriptions
                 direction="vertical"
-                :column="3"
+                :column="4"
                 size="small"
                 v-if="properties.online"
                 border
@@ -58,10 +58,10 @@
               <template #title>
                 <div style="color: #606060;font-size: 14px">连接属性</div>
               </template>
-              <el-descriptions-item label-class-name="description-label" label="内网地址" width="33.3%">
+              <el-descriptions-item label-class-name="description-label" label="内网地址" width="25%">
                 {{ properties.config.device.cidr }}
               </el-descriptions-item>
-              <el-descriptions-item label-class-name="description-label" label="传输" width="66.6%" :span="2">
+              <el-descriptions-item label-class-name="description-label" label="传输" width="25%">
                 <el-tag size="small" effect="dark" :type="properties.config.global.protocol === ''?'info':''"
                         style="margin-left: 5px">
                   {{
@@ -73,19 +73,19 @@
                   {{ properties.config.data_process.encrypt === "" ? "无" : properties.config.data_process.encrypt }}
                 </el-tag>
               </el-descriptions-item>
-              <el-descriptions-item label-class-name="description-label" label="并发连接数" width="33.3%">
+              <el-descriptions-item label-class-name="description-label" label="并发连接数" width="25%">
                 {{ properties.config.global.multi_connection }}
               </el-descriptions-item>
-              <el-descriptions-item label-class-name="description-label" label="MTU" width="33.3%">
+              <el-descriptions-item label-class-name="description-label" label="MTU" width="25%">
                 {{ properties.config.global.mtu }}
               </el-descriptions-item>
-              <el-descriptions-item label-class-name="description-label" label="设置" width="33.3%">
+              <el-descriptions-item label-class-name="description-label" label="设置" width="100%">
                 <config-btn :account="properties.config.user.Account"/>
               </el-descriptions-item>
             </el-descriptions>
             <el-descriptions
                 direction="vertical"
-                :column="3"
+                :column="4"
                 size="small"
                 v-else
                 border
