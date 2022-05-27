@@ -3,6 +3,7 @@ package administration
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
+	"tunn/administration/model"
 	"tunn/application"
 	"tunn/authenticationv2"
 	"tunn/config"
@@ -177,4 +178,29 @@ func ApiResetRoutes(ctx *gin.Context) {
 	} else {
 		responseError(ctx, errors.New(result.Error), "")
 	}
+}
+
+//
+// ApiFlowStatus
+// @Description:
+// @param ctx
+//
+func ApiFlowStatus(ctx *gin.Context) {
+	rx := model.LinkStatus{}
+	tx := model.LinkStatus{}
+	online := false
+	if application.Current != nil && application.Current.Serv != nil {
+		if application.Current.Serv.Rxfs != nil {
+			rx.ReadFromFP(application.Current.Serv.Rxfs)
+		}
+		if application.Current.Serv.Txfs != nil {
+			tx.ReadFromFP(application.Current.Serv.Txfs)
+		}
+		online = application.Current.Serv.Online
+	}
+	responseSuccess(ctx, map[string]interface{}{
+		"rx":     rx,
+		"tx":     tx,
+		"online": online,
+	}, "")
 }

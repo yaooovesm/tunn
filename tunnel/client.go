@@ -35,7 +35,9 @@ type Client struct {
 	maxIndex         int
 	multiConn        *transmitter.MultiConn
 	TxFP             *traffic.FlowProcessors
+	Txfs             *traffic.FlowStatisticsFP
 	RxFP             *traffic.FlowProcessors
+	Rxfs             *traffic.FlowStatisticsFP
 	mtu              int
 	PK               []byte
 	version          transmitter.Version
@@ -79,12 +81,14 @@ func (c *Client) Init() error {
 	//"RX : rx_packet_speed=", TXFs.PacketSpeed, "p/s rx_flow_speed=", TXFs.FlowSpeed/1024/1024, "mb/s"
 	RXFs := &traffic.FlowStatisticsFP{Name: "rx"}
 	c.RxFP.Register(RXFs, "rx_fs")
+	c.Rxfs = RXFs
 	//tx flow processor
 	c.TxFP = traffic.NewFlowProcessor()
 	c.TxFP.Name = "client_tx"
 	//"TX : tx_packet_speed=", TXFs.PacketSpeed, "p/s tx_flow_speed=", TXFs.FlowSpeed/1024/1024, "mb/s"
 	TXFs := &traffic.FlowStatisticsFP{Name: "tx"}
 	c.TxFP.Register(TXFs, "tx_fs")
+	c.Txfs = TXFs
 	return nil
 }
 

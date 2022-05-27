@@ -40,6 +40,7 @@ func (ad *ClientAdminApi) Serv() {
 		appGroup.GET("/", ApiCurrentApplication)
 		appGroup.POST("/start", ApiApplicationStart)
 		appGroup.GET("/stop", ApiApplicationStop)
+		appGroup.GET("/flow", ApiFlowStatus)
 	}
 	//admin
 	{
