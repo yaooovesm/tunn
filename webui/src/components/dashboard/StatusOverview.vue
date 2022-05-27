@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-card shadow="always" body-style="padding:0">
+    <el-card shadow="always" body-style="padding:0" v-loading="loading">
       <div class="title" style="margin-top: 20px;margin-bottom: 20px;">
         <div class="title-text">概况
         </div>
@@ -191,6 +191,7 @@ export default {
       }).then((res) => {
         let response = res.data
         this.properties = response.data
+        this.updateTime = new Date()
         this.loading = false
       }).catch((err) => {
         this.loading = false

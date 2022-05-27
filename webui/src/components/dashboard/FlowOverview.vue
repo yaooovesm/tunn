@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-card shadow="always" body-style="padding:0">
+    <el-card shadow="always" body-style="padding:0" v-loading="loading">
       <div class="title" style="margin-top: 20px;margin-bottom: 20px;">
         <div class="title-text">仪表盘
         </div>
@@ -8,7 +8,7 @@
       <div style="padding: 20px">
         <el-row :gutter="30">
           <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
-            <div style="margin-bottom: 30px;text-align: center">
+            <div style="margin-bottom: 10px;text-align: center">
               <el-row :gutter="20">
                 <!--接收-->
                 <el-col :span="12">
@@ -97,7 +97,7 @@
             </div>
           </el-col>
           <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
-            <div style="margin-bottom: 30px;text-align: center">
+            <div style="margin-bottom: 10px;text-align: center">
               <el-row :gutter="20">
                 <!--处理速度-->
                 <el-col :span="12">
@@ -264,7 +264,6 @@ export default {
   methods: {
     set: function (data) {
       this.status = data
-      console.log(this.status)
       this.status.rx.bandwidth = this.status.rx.FlowSpeed / 1024 / 1024 * 8
       this.status.rx.bandwidth_usage = this.status.rx.bandwidth / this.bandwidth * 100
       this.status.tx.bandwidth = this.status.tx.FlowSpeed / 1024 / 1024 * 8

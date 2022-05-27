@@ -52,7 +52,10 @@
             连接设置
           </el-link>
         </div>
-        Connect to Hub {{ '<' }} <span style="color: #007BBB">{{ serverShotCut }}</span> {{ '>' }}
+        Connect to Hub {{ '<' }}
+        <span style="color: #007BBB" v-if="serverShotCut!==''">{{ serverShotCut }}</span>
+        <span style="color: #E6A23C" v-else>未指定服务器</span>
+        {{ '>' }}
       </div>
       <el-drawer v-model="setting" title="客户端设置" :direction="'rtl'" :append-to-body="true" :show-close="false"
                  custom-class="default-drawer">
@@ -69,10 +72,10 @@
                   label-width="100px"
                   :model="server"
               >
-                <el-form-item label="服务器地址">
+                <el-form-item label="认证服务器地址">
                   <el-input v-model="server.address"/>
                 </el-form-item>
-                <el-form-item label="服务器端口">
+                <el-form-item label="认证服务器端口">
                   <el-input v-model="server.port"/>
                 </el-form-item>
                 <el-form-item label="证书地址">
@@ -90,14 +93,19 @@
         </template>
       </el-drawer>
     </div>
+    <div style="margin-top: 30px;display: none">
+      <link-overview/>
+    </div>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import LinkOverview from "@/components/dashboard/LinkOverview";
 
 export default {
   name: "LoginBox",
+  components: {LinkOverview},
   data() {
     return {
       timer: undefined,
@@ -109,7 +117,7 @@ export default {
       loading: false,
       version: "",
       develop: false,
-      serverShotCut: "未指定服务器",
+      serverShotCut: "",
       server: {
         address: "",
         port: "",
@@ -148,10 +156,16 @@ export default {
           this.$emit("updated")
         }
         this.error = response.data.error
+        if (this.error !== "" && this.loading) {
+          this.loading = false
+        }
         this.running = response.data.running
         this.online = response.data.online
       }).catch((err) => {
         this.error = err.response.data.error
+        if (this.error !== "" && this.loading) {
+          this.loading = false
+        }
       }).finally(() => {
         if (!silence) {
           this.loading = false
@@ -169,7 +183,7 @@ export default {
         this.$utils.HandleError(err)
       }).finally(() => {
         setTimeout(() => {
-          this.check()
+          this.check(false)
         }, 1500)
       })
     },
@@ -206,7 +220,7 @@ export default {
         this.$utils.HandleError(err)
       }).finally(() => {
         setTimeout(() => {
-          this.check()
+          this.check(false)
         }, 1500)
       })
     },
