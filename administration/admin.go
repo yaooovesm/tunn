@@ -1,9 +1,12 @@
 package administration
 
 import (
+	"embed"
+	"fmt"
 	log "github.com/cihub/seelog"
 	"github.com/gin-gonic/gin"
 	"net"
+	"net/http"
 	"strconv"
 	"strings"
 	"tunn/config"
@@ -17,6 +20,7 @@ import (
 type ClientAdmin struct {
 	cfg    config.Admin
 	engine *gin.Engine
+	static embed.FS
 }
 
 //
@@ -25,7 +29,7 @@ type ClientAdmin struct {
 // @param cfg
 // @return *ClientAdmin
 //
-func NewClientAdmin(cfg config.Admin) *ClientAdmin {
+func NewClientAdmin(cfg config.Admin, static embed.FS) *ClientAdmin {
 	if !version.Develop {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -34,6 +38,7 @@ func NewClientAdmin(cfg config.Admin) *ClientAdmin {
 	return &ClientAdmin{
 		cfg:    cfg,
 		engine: engine,
+		static: static,
 	}
 }
 
@@ -57,10 +62,26 @@ func (ad *ClientAdmin) Run() {
 	} else {
 		address = strings.Join([]string{"0.0.0.0", strconv.Itoa(ad.cfg.Port)}, ":")
 	}
+	//setup static
+	ad.engine.GET("/static/*filepath", func(c *gin.Context) {
+		staticServer := http.FileServer(http.FS(ad.static))
+		staticServer.ServeHTTP(c.Writer, c.Request)
+	})
+	//redirect
+	ad.engine.GET("/", func(c *gin.Context) {
+		c.Request.URL.Path = "/static/"
+		c.Redirect(http.StatusMovedPermanently, c.Request.URL.String())
+	})
 	//setup api
 	api := NewClientAdminApi(ad.engine)
 	api.Serv()
 	log.Info("admin work at : ", address)
+	accessLink := strings.Join([]string{ad.cfg.Address, strconv.Itoa(ad.cfg.Port)}, ":")
+	if ad.cfg.Address == "0.0.0.0" {
+		accessLink = strings.Join([]string{"127.0.0.1", strconv.Itoa(ad.cfg.Port)}, ":")
+	}
+	fmt.Println("for control please access link: ")
+	fmt.Println("http://" + accessLink)
 	err := ad.engine.Run(address)
 	if err != nil {
 		_ = log.Error("admin service stopped!")

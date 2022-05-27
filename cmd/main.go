@@ -1,11 +1,15 @@
 package main
 
 import (
+	"embed"
 	"tunn/administration"
 	"tunn/application"
 	"tunn/config"
 	"tunn/logging"
 )
+
+//go:embed static
+var static embed.FS
 
 //
 // main
@@ -21,6 +25,6 @@ func main() {
 	if config.Current.User.Account != "" && config.Current.User.Password != "" {
 		_ = app.Run()
 	}
-	admin := administration.NewClientAdmin(config.Current.Admin)
+	admin := administration.NewClientAdmin(config.Current.Admin, static)
 	admin.Run()
 }
