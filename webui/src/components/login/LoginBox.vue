@@ -93,19 +93,17 @@
         </template>
       </el-drawer>
     </div>
-    <div style="margin-top: 30px;display: none">
-      <link-overview/>
-    </div>
+    <!--    <div style="margin-top: 30px;display: none">-->
+    <!--    </div>-->
   </div>
 </template>
 
 <script>
 import axios from "axios";
-import LinkOverview from "@/components/dashboard/LinkOverview";
 
 export default {
   name: "LoginBox",
-  components: {LinkOverview},
+  components: {},
   data() {
     return {
       timer: undefined,

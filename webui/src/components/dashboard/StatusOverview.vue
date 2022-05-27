@@ -68,9 +68,9 @@
                     properties.config.global.protocol === "" ? "未知协议" : properties.config.global.protocol.toUpperCase()
                   }}
                 </el-tag>
-                &nbsp;+&nbsp;
-                <el-tag size="small" effect="dark" :type="properties.config.data_process.encrypt === ''?'info':''">
-                  {{ properties.config.data_process.encrypt === "" ? "无" : properties.config.data_process.encrypt }}
+                <el-tag size="small" effect="dark" :type="properties.config.data_process.encrypt === ''?'info':''"
+                        style="margin-left: 5px">
+                  {{ properties.config.data_process.encrypt === "" ? "Raw" : properties.config.data_process.encrypt }}
                 </el-tag>
               </el-descriptions-item>
               <el-descriptions-item label-class-name="description-label" label="并发连接数" width="25%">
