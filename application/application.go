@@ -141,41 +141,6 @@ Loop:
 	}
 	app.Running = false
 	log.Info("tunnel exited")
-	//app.Error = ""
-	//app.ch = make(chan error, 1)
-	//go func() {
-	//	app.Running = true
-	//	app.ch <- app.Serv.Start(app.startWaitGroup)
-	//}()
-	//for {
-	//	select {
-	//	case <-app.terminate:
-	//		app.Error = "terminated"
-	//		app.Running = false
-	//		log.Info("tunnel exited")
-	//		return
-	//	case err := <-app.ch:
-	//		if err != nil {
-	//			app.Serv.Stop()
-	//			_ = log.Warn("tunnel exit with error : ", err.Error())
-	//			app.Error = err.Error()
-	//			if tunnel.IsAllowRestart(err, true) {
-	//				log.Info("tunnel restart in 10s...")
-	//				time.Sleep(time.Second * 10)
-	//				app.startWaitGroup.Add(1)
-	//				app.Error = ""
-	//				app.ch <- app.Serv.Start(app.startWaitGroup)
-	//			} else {
-	//				app.Running = false
-	//				return
-	//			}
-	//		} else {
-	//			app.Running = false
-	//			log.Info("tunnel exited")
-	//			return
-	//		}
-	//	}
-	//}
 }
 
 //
