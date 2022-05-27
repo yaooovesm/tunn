@@ -161,11 +161,11 @@ Loop:
 		if p.UUID == c.UUID && p.Type != PacketTypeUnknown {
 			switch p.Type {
 			case PacketTypeLogin:
-				reply := &AuthReply{}
+				reply := AuthReply{}
 				//解析reply
-				_ = json.Unmarshal(p.Payload, reply)
+				_ = json.Unmarshal(p.Payload, &reply)
 				if reply.Ok {
-					err := c.afterLogin(reply)
+					err := c.afterLogin(&reply)
 					if err != nil {
 						//处理失败
 						c.sig <- err
@@ -174,7 +174,9 @@ Loop:
 					}
 				} else {
 					//登录失败
-					c.Disconnect(errors.New(reply.Error), true)
+					cause := errors.New(reply.Error)
+					c.sig <- cause
+					c.Disconnect(cause, true)
 					//退出循环
 					break Loop
 				}
