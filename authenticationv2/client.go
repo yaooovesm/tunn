@@ -37,6 +37,7 @@ type Client struct {
 	tunnel    *transmitter.Tunnel  //客户端连接
 	sig       chan error           //同步信号
 	opsig     chan OperationResult //远程操作信号
+	bucket    *Bucket              //限流器
 }
 
 //
@@ -59,6 +60,7 @@ func NewClient(handler AuthClientHandler) (client *Client, err error) {
 		Online:  false,
 		sig:     make(chan error, 1),
 		opsig:   make(chan OperationResult, 1),
+		bucket:  NewBucket(time.Second * 60),
 	}
 	return c, nil
 }
@@ -393,6 +395,10 @@ func (c *Client) Message(msg string) (err error) {
 // @param params
 //
 func (c *Client) Operation(name OperationName, params map[string]interface{}) (OperationResult, error) {
+	err := c.bucket.Occupy()
+	if err != nil {
+		return OperationResult{}, err
+	}
 	operation := Operation{
 		UUID:      c.UUID,
 		User:      config.Current.User.Account,
@@ -415,6 +421,7 @@ func (c *Client) Operation(name OperationName, params map[string]interface{}) (O
 	//60秒超时
 	return res, timer.TimeoutTask(func() error {
 		res = <-c.opsig
+		c.bucket.Leave()
 		return nil
 	}, time.Minute)
 }
