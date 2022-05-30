@@ -2,6 +2,8 @@
 
 <br>
 
+[中文文档](./doc/README_CN.md) | [English](./doc/README_EN.md)
+
 The purpose of this project is to implement the high-speed, safe and high-quality cross network connection. The virtual
 LAN environment is provided for users by creating a network tunnel. It supports multiple platforms, multiple
 transmission protocols and encryption methods. It is applicable to simple remote networking and other scenarios.
@@ -25,7 +27,7 @@ tested：
 may support：
 
 - Windows 7+
-- 支持tun设备的Linux发行版
+- Linux release supports tun device
 
 #### supported transmit protocols
 
@@ -35,7 +37,7 @@ TCP / KCP / WS / WSS
 
 AES256 / AES192 / AES128 / XOR / SM4 / TEA / XTEA / Salsa20 / Blowfish
 
-### 更新
+### Updates
 
 ------
 
@@ -49,7 +51,7 @@ AES256 / AES192 / AES128 / XOR / SM4 / TEA / XTEA / Salsa20 / Blowfish
 
 - detached from project [Tunnel](https://gitee.com/jackrabbit872568318/tunnel)
 
-2022/05/09 @ 历史更新
+2022/05/09 @ history
 
 - work in NAT network
 - windows support
@@ -136,7 +138,7 @@ go build -o tunn.exe
 }
 ```
 
-#### 启动
+#### Startup
 
 Start parameters
 
