@@ -2,7 +2,7 @@
 
 <br>
 
-[中文文档](./doc/README_CN.md) | [English](./doc/README_EN.md)
+[中文文档](./README_CN.md) | [English](./README_EN.md)
 
 本项目旨在于实现高速、安全、高质量的跨网络通信。通过创建网络隧道实现为用户提供虚拟局域网环境。支持多平台多种传输协议以及加密方式。适用于简单的异地组网等场景。
 
@@ -105,7 +105,7 @@ go build -o tunn.exe
 
 [配置文件](../config/config_full.json)
 
-```json lines
+```text
 {
   "user": {
     //Hub用户

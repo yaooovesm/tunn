@@ -2,7 +2,7 @@
 
 <br>
 
-[中文文档](./doc/README_CN.md) | [English](./doc/README_EN.md)
+[中文文档](./README_CN.md) | [English](./README_EN.md)
 
 The purpose of this project is to implement the high-speed, safe and high-quality cross network connection. The virtual
 LAN environment is provided for users by creating a network tunnel. It supports multiple platforms, multiple
@@ -107,7 +107,7 @@ go build -o tunn.exe
 
 [Config File](../config/config_full.json)
 
-```json lines
+```text
 {
   "user": {
     //Hub account

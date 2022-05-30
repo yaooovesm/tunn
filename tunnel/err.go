@@ -3,7 +3,7 @@ package tunnel
 import (
 	"errors"
 	"strings"
-	"tunn/authentication"
+	authentication "tunn/authenticationv2"
 )
 
 var (
