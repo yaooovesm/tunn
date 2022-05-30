@@ -4,19 +4,13 @@
 
 [中文文档](./README_CN.md) | [English](./README_EN.md)
 
-The purpose of this project is to implement the high-speed, safe and high-quality cross network connection. The virtual
-LAN environment is provided for users by creating a network tunnel. It supports multiple platforms, multiple
-transmission protocols and encryption methods. It is applicable to simple remote networking and other scenarios.
-
-<br>
-<br>
 <br>
 
 ### Features
 
 --------
 
-#### supported os
+#### Supported OS
 
 tested：
 
@@ -29,11 +23,11 @@ may support：
 - Windows 7+
 - Linux release supports tun device
 
-#### supported transmit protocols
+#### Supported transmit protocols
 
 TCP / KCP / WS / WSS
 
-#### supported encryption methods
+#### Supported encryption methods
 
 AES256 / AES192 / AES128 / XOR / SM4 / TEA / XTEA / Salsa20 / Blowfish
 
@@ -107,38 +101,70 @@ go build -o tunn.exe
 
 [Config File](../config/config_full.json)
 
-```text
+Descriptions
+
+```shell
+#Hub account
+user.Account
+#Hub password (auto login if password were set)
+user.Password
+
+#authentication server address
+auth.Address
+#authentication server port
+auth.Port
+
+#Hub certification
+security.cert
+
+#admin webui address
+admin.address
+#admin webui port
+admin.port
+#admin webui user
+admin.user
+#admin webui password
+admin.password
+```
+
+Example
+
+```json
 {
   "user": {
-    //Hub account
     "Account": "account",
-    //Hub password (auto login if password were set)
     "Password": "password"
   },
   "auth": {
-    //authentication server address
     "Address": "aaa.bbb.ccc",
-    //authentication server port
     "Port": 10241
   },
   "security": {
-    //Hub certification
     "cert": "cert.pem"
   },
   "admin": {
-    //admin address
     "address": "127.0.0.1",
-    //admin port
     "port": 8080,
-    //admin user
     "user": "admin",
-    //admin password
     "password": "P@ssw0rd"
   }
 }
 ```
 
 #### Startup
+
+! forward function should be enabled, when export network in Linux client
+
+```shell
+#enable ip forward in kernel
+echo 1 > /proc/sys/net/ipv4/ip_forward
+#setup iptables
+#e.g. iptables -t nat -A  POSTROUTING -s 192.168.0.0/24 -j MASQUERADE
+iptables -t nat -A  POSTROUTING -s [tunn network] -j MASQUERADE
+```
+
+! Windows needs Privileges <br>
+! Windows needs download [wintun](https://www.wintun.net/) driver with executable file
 
 Start parameters
 

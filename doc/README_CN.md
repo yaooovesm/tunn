@@ -4,10 +4,7 @@
 
 [中文文档](./README_CN.md) | [English](./README_EN.md)
 
-本项目旨在于实现高速、安全、高质量的跨网络通信。通过创建网络隧道实现为用户提供虚拟局域网环境。支持多平台多种传输协议以及加密方式。适用于简单的异地组网等场景。
 
-<br>
-<br>
 <br>
 
 ### 特性
@@ -105,38 +102,70 @@ go build -o tunn.exe
 
 [配置文件](../config/config_full.json)
 
-```text
+说明
+
+```shell
+#Hub用户
+user.Account
+#Hub密码 (在设置密码时将会自动连接)
+user.Password
+
+#认证服务器地址
+auth.Address
+#认证服务器端口
+auth.Port
+
+#Hub认证证书
+security.cert
+
+#控制台地址
+admin.address
+#控制台端口
+admin.port
+#控制台用户
+admin.user
+#控制台密码
+admin.password
+```
+
+示例
+
+```json
 {
   "user": {
-    //Hub用户
     "Account": "account",
-    //Hub密码 (在设置密码时将会自动连接)
     "Password": "password"
   },
   "auth": {
-    //认证服务器地址
     "Address": "aaa.bbb.ccc",
-    //认证服务器端口
     "Port": 10241
   },
   "security": {
-    //Hub证书
     "cert": "cert.pem"
   },
   "admin": {
-    //控制台地址
     "address": "127.0.0.1",
-    //控制台端口
     "port": 8080,
-    //控制台用户
     "user": "admin",
-    //控制台密码
     "password": "P@ssw0rd"
   }
 }
 ```
 
 #### 启动
+
+! 当Linux客户端暴露网络时需要手动设置路由转发，并且开启内核转发。
+
+```shell
+#开启内核转发
+echo 1 > /proc/sys/net/ipv4/ip_forward
+#开启地址伪装
+#e.g. iptables -t nat -A  POSTROUTING -s 192.168.0.0/24 -j MASQUERADE
+iptables -t nat -A  POSTROUTING -s [tunn network] -j MASQUERADE
+```
+
+! Windows需要以管理员模式启动 <br>
+! Windows需要下载 [wintun](https://www.wintun.net/) 驱动并与可执行文件在同一目录下
 
 启动参数
 
