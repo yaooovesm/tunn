@@ -10,7 +10,6 @@ export default {
   name: 'App',
   components: {},
   mounted() {
-    /*区分关闭和刷新，关闭退出登录 start*/
     window.onload = function () {
       if (!window.sessionStorage["login"]) {
         localStorage.removeItem("tunn")
