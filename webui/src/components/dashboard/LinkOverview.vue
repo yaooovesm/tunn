@@ -54,7 +54,7 @@ export default {
         let response = res.data
         this.version = response.data.version
         this.develop = response.data.develop
-      }).catch((err) => {
+      }).catch(() => {
         this.version = "unknown"
         this.develop = false
       })
