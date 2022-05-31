@@ -36,7 +36,7 @@ AES256 / AES192 / AES128 / XOR / SM4 / TEA / XTEA / Salsa20 / Blowfish
 
 ------
 
-2022/05/27 @ 1.0.0.220527
+2022/05/31 @ 1.0.0.220531
 
 - WebUI
 - 系统路由导入自动化
@@ -61,17 +61,38 @@ AES256 / AES192 / AES128 / XOR / SM4 / TEA / XTEA / Salsa20 / Blowfish
 
 ------
 
-需要安装Go1.18.2或者更高版本 [下载](https://golang.google.cn/dl/)
+需要安装Go1.18.2或者更高版本 [下载](https://golang.google.cn/dl/) <br>
+需要安装nodejs环境 [下载](https://nodejs.org/en/download/)
 
 准备
 
 ```shell
 #拉取仓库
-git clone https://gitee.com/jackrabbit872568318/tunn.git
+git clone https://github.com/yaooovesm/tunn.git
 
 #进入目录
 cd ./tunn
+```
 
+编译webui
+
+```shell
+#@ tunn/
+#进入目录
+cd webui
+
+#下载依赖
+npm install
+
+#build
+npm run build
+```
+
+! 将打包的dist目录移动到 tunn/cmd 并将文件夹更名为static
+
+编译Tunn
+
+```shell
 #下载依赖
 set GO111MODULE=on
 go mod tidy
@@ -79,8 +100,6 @@ go mod tidy
 #进入cmd目录
 cd cmd
 ```
-
-编译
 
 ```shell
 # @linux

@@ -35,7 +35,7 @@ AES256 / AES192 / AES128 / XOR / SM4 / TEA / XTEA / Salsa20 / Blowfish
 
 ------
 
-2022/05/27 @ 1.0.0.220527
+2022/05/31 @ 1.0.0.220531
 
 - WebUI
 - automatic import system route table
@@ -60,26 +60,45 @@ AES256 / AES192 / AES128 / XOR / SM4 / TEA / XTEA / Salsa20 / Blowfish
 
 ------
 
-Needs Go1.18.2 or higher [download](https://golang.google.cn/dl/)
+Needs Go1.18.2 or higher [download](https://golang.google.cn/dl/) <br>
+Needs nodejs [download](https://nodejs.org/en/download/)
 
-Prepare
+preparation
 
 ```shell
 #clone repository
-git clone https://gitee.com/jackrabbit872568318/tunn.git
+git clone https://github.com/yaooovesm/tunn.git
 
-#into repository directory
+#change directory to tunn
 cd ./tunn
+```
 
-#download dependencies
+Compile WebUI
+
+```shell
+#@ tunn/
+#change directory to tunn/webui
+cd webui
+
+#dependencies
+npm install
+
+#build
+npm run build
+```
+
+! after build, move 'dist' to tunn/cmd and rename as 'static'
+
+Compile Tunn
+
+```shell
+#dependencies
 set GO111MODULE=on
 go mod tidy
 
-#into cmd directory
+#change direction to tunn/cmd
 cd cmd
 ```
-
-Compile
 
 ```shell
 # @linux
