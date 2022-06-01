@@ -29,6 +29,8 @@ var (
 		"use of closed network connection",
 		"close 1006 (abnormal closure)",
 		"forcibly closed by the remote host",
+		"connection timed out",
+		"connect failed",
 	}
 )
 
