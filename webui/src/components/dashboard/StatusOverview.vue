@@ -79,7 +79,34 @@
               <el-descriptions-item label-class-name="description-label" label="MTU" width="25%">
                 {{ properties.config.global.mtu }}
               </el-descriptions-item>
-              <el-descriptions-item label-class-name="description-label" label="设置" width="100%">
+              <el-descriptions-item label-class-name="description-label" label="限速" width="25%">
+                <el-popover
+                    placement="bottom-start"
+                    title="说明"
+                    :width="200"
+                    trigger="hover"
+                >
+                  <template #default>
+                    <div style="font-size: 12px">
+                      <span v-if="properties.config.limit.bandwidth===0">客户端速度无限制</span>
+                      <span v-else>
+                      {{ '客户端限速' + properties.config.limit.bandwidth + 'Mbps,限速范围包括接收和发送。' }}
+                    </span>
+                    </div>
+                  </template>
+                  <template #reference>
+                    <div>
+                      <span v-if="properties.config.limit.bandwidth!==0">{{
+                          properties.config.limit.bandwidth
+                        }} Mbps</span>
+                      <span v-else>
+                  无限制
+                </span>
+                    </div>
+                  </template>
+                </el-popover>
+              </el-descriptions-item>
+              <el-descriptions-item label-class-name="description-label" label="设置" width="75%" :span="3">
                 <config-btn :account="properties.config.user.Account"/>
               </el-descriptions-item>
             </el-descriptions>
@@ -167,6 +194,9 @@ export default {
             port: 0,
             user: "",
             password: ""
+          },
+          limit: {
+            bandwidth: 0
           }
         },
         error: "",

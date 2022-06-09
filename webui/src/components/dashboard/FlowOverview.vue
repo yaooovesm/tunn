@@ -125,6 +125,9 @@
                     <template #default>
                       <div>
                         <div class="detail-unit">
+                          <span>最大带宽 </span> {{ status.limit.bandwidth }} Mbps
+                        </div>
+                        <div class="detail-unit">
                           <div class="detail-unit">
                           <span>消耗带宽
                             <span style="color: #007bbb;float: right">({{
@@ -216,6 +219,9 @@ export default {
       loading: false,
       timer: undefined,
       status: {
+        limit: {
+          bandwidth: 0,
+        },
         online: false,
         rx: {
           Flow: 0,
@@ -264,14 +270,19 @@ export default {
   methods: {
     set: function (data) {
       this.status = data
+      this.status.limit.bandwidth = this.status.limit.bandwidth === 0 ? 1000 : this.status.limit.bandwidth
       this.status.rx.bandwidth = this.status.rx.FlowSpeed / 1024 / 1024 * 8
-      this.status.rx.bandwidth_usage = this.status.rx.bandwidth / this.bandwidth * 100
+      this.status.rx.bandwidth_usage = this.status.rx.bandwidth / this.status.limit.bandwidth * 100
+      this.status.rx.bandwidth_usage = this.status.rx.bandwidth_usage > 100 ? 100 : this.status.rx.bandwidth_usage
       this.status.tx.bandwidth = this.status.tx.FlowSpeed / 1024 / 1024 * 8
-      this.status.tx.bandwidth_usage = this.status.tx.bandwidth / this.bandwidth * 100
+      this.status.tx.bandwidth_usage = this.status.tx.bandwidth / this.status.limit.bandwidth * 100
+      this.status.tx.bandwidth_usage = this.status.tx.bandwidth_usage > 100 ? 100 : this.status.tx.bandwidth_usage
       let total_bandwidth = this.status.tx.bandwidth + this.status.rx.bandwidth
+      let bandwidth_usage = total_bandwidth / this.status.limit.bandwidth * 100
+      bandwidth_usage = bandwidth_usage > 100 ? 100 : bandwidth_usage
       this.status.total = {
         bandwidth: total_bandwidth,
-        bandwidth_usage: total_bandwidth / this.bandwidth * 100,
+        bandwidth_usage: bandwidth_usage,
         Packet: this.status.rx.Packet + this.status.tx.Packet,
         PacketSpeed: this.status.rx.PacketSpeed + this.status.tx.PacketSpeed,
       }
