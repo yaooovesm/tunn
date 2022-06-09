@@ -202,5 +202,6 @@ func ApiFlowStatus(ctx *gin.Context) {
 		"rx":     rx,
 		"tx":     tx,
 		"online": online,
+		"limit":  config.Current.Limit,
 	}, "")
 }

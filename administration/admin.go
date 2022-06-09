@@ -84,7 +84,7 @@ func (ad *ClientAdmin) Run() {
 	fmt.Println("http://" + accessLink)
 	err := ad.engine.Run(address)
 	if err != nil {
-		_ = log.Error("admin service stopped!")
+		_ = log.Error("admin service stopped : ", err)
 		return
 	}
 }

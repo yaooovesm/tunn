@@ -27,6 +27,7 @@ type Config struct {
 	Security    Security    `json:"security"`
 	Runtime     Runtime     `json:"runtime"`
 	Admin       Admin       `json:"admin"`
+	Limit       Limit       `json:"limit"`
 }
 
 //
@@ -107,6 +108,7 @@ func (cfg *Config) MergePushed(push PushedConfig) {
 	cfg.Routes = push.Routes
 	cfg.Device = push.Device
 	cfg.DataProcess.CipherType = push.DataProcess.CipherType
+	cfg.Limit = push.Limit
 }
 
 //
