@@ -2,6 +2,8 @@ package main
 
 import (
 	"embed"
+	"fmt"
+	"runtime"
 	"tunn/administration"
 	"tunn/application"
 	"tunn/config"
@@ -16,6 +18,10 @@ var static embed.FS
 // @Description: entrance
 //
 func main() {
+	//set GOMAXPROCS
+	cores := runtime.NumCPU()
+	runtime.GOMAXPROCS(cores * 2)
+	fmt.Println("MAXPROCS set to ", cores*4)
 	//initialize log
 	logging.Initialize()
 	//load config
