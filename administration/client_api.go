@@ -181,6 +181,32 @@ func ApiResetRoutes(ctx *gin.Context) {
 }
 
 //
+// ApiGetUserFlowFromServer
+// @Description:
+// @param ctx
+//
+func ApiGetUserFlowFromServer(ctx *gin.Context) {
+	if application.Current == nil || !application.Current.Running {
+		responseError(ctx, errors.New("没有运行中的客户端"), "")
+		return
+	}
+	result, err := application.Current.Serv.AuthClient.Operation(
+		authenticationv2.OperationGetUserFlowCount,
+		map[string]interface{}{
+			"account": config.Current.User.Account,
+		})
+	if err != nil {
+		responseError(ctx, err, "")
+		return
+	}
+	if result.Error == "" {
+		responseSuccess(ctx, result.Result, "")
+	} else {
+		responseError(ctx, errors.New(result.Error), "")
+	}
+}
+
+//
 // ApiFlowStatus
 // @Description:
 // @param ctx

@@ -10,14 +10,15 @@
       </el-header>
       <el-main style="padding: 50px 20vh;">
         <div>
-          <el-row :gutter="30">
+          <el-row :gutter="20">
             <el-col :xs="24" :sm="24" :md="8" :lg="6" :xl="6">
               <el-row :gutter="10">
                 <el-col :span="24">
                   <login-box ref="login_box" @updated="updateOverview"/>
                 </el-col>
-                <el-col :span="24" style="margin-top: 30px">
+                <el-col :span="24" style="margin-top: 20px">
                   <!--                  <link-overview/>-->
+                  <flow-counter/>
                 </el-col>
               </el-row>
             </el-col>
@@ -26,7 +27,7 @@
                 <el-col :span="24">
                   <flow-overview :passive="false"/>
                 </el-col>
-                <el-col :span="24" style="margin-top: 30px">
+                <el-col :span="24" style="margin-top: 20px">
                   <status-overview ref="overview"/>
                 </el-col>
               </el-row>
@@ -49,11 +50,12 @@ import LoginBox from "@/components/login/LoginBox";
 import axios from "axios";
 import FlowOverview from "@/components/dashboard/FlowOverview";
 import LinkOverview from "@/components/dashboard/LinkOverview";
+import FlowCounter from "@/components/dashboard/FlowCounter";
 //import LinkOverview from "@/components/dashboard/LinkOverview";
 
 export default {
   name: "DashboardPage",
-  components: {LinkOverview, FlowOverview, LoginBox, StatusOverview},
+  components: {FlowCounter, LinkOverview, FlowOverview, LoginBox, StatusOverview},
   data() {
     return {
       timer: undefined,

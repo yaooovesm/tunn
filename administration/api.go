@@ -55,5 +55,6 @@ func (ad *ClientAdminApi) Serv() {
 		remoteGroup.GET("/route/reset", ApiResetRoutes)
 		remoteGroup.POST("/route/save", ApiUpdateRoutes)
 		remoteGroup.GET("/config", ApiGetConfig)
+		remoteGroup.GET("/flow", ApiGetUserFlowFromServer)
 	}
 }

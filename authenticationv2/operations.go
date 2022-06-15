@@ -7,6 +7,7 @@ const (
 	OperationUpdateRoutes        OperationName = "OperationUpdateRoutes"
 	OperationResetRoutes         OperationName = "ResetRoutes"
 	OperationGetAvailableExports OperationName = "GetAvailableExports"
+	OperationGetUserFlowCount    OperationName = "GetUserFlowCount"
 )
 
 //
