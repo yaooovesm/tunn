@@ -7,6 +7,9 @@ import router from "./router"
 //utils
 import utils from "@/utils";
 
+//icon
+import "./assets/icon/iconfont.css"
+
 //axios
 import axios from 'axios'
 import VueAxios from 'vue-axios'
