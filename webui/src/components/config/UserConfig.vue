@@ -90,6 +90,7 @@
                         type="info"
                         effect="dark"
                         :disable-transitions="false"
+                        @click="$refs.edit_export.show(route)"
                         @close="handleDeleteExportRoute(route)"
                         style="margin-right: 10px;margin-bottom: 5px"
                     >
@@ -124,6 +125,7 @@
         <el-button :loading="loading" type="primary" @click="save">保存</el-button>
         <el-button :loading="loading" @click="close">关闭</el-button>
       </template>
+      <route-export-edit-dialog ref="edit_export" @submit="handleExportModify"/>
     </el-dialog>
   </div>
 </template>
@@ -133,10 +135,11 @@ import axios from "axios";
 import {ElMessageBox} from "element-plus";
 import RouteImportSelector from "@/components/config/RouteImportSelector";
 import RouteExportDialog from "@/components/config/RouteExportDialog";
+import RouteExportEditDialog from "@/components/config/RouteExportEditDialog";
 
 export default {
   name: "UserConfig",
-  components: {RouteExportDialog, RouteImportSelector},
+  components: {RouteExportEditDialog, RouteExportDialog, RouteImportSelector},
   data() {
     return {
       loading: false,
@@ -150,6 +153,16 @@ export default {
     }
   },
   methods: {
+    handleExportModify: function (r) {
+      for (let i = 0; i < this.exportRoutes.length; i++) {
+        let origin = this.exportRoutes[i]
+        if (origin.name === r.name) {
+          this.exportRoutes[i] = r
+          break
+        }
+      }
+      this.$refs.edit_export.close()
+    },
     reset: function () {
       this.loading = true
       ElMessageBox.confirm(
@@ -195,6 +208,7 @@ export default {
     },
     save: function () {
       this.loading = true
+      console.log([...this.importRoutes, ...this.exportRoutes])
       axios({
         method: "post",
         url: "/api/remote/route/save",

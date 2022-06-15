@@ -401,6 +401,13 @@ func (c *Client) Operation(name OperationName, params map[string]interface{}) (O
 	if err != nil {
 		return OperationResult{}, err
 	}
+	if params != nil {
+		params["account"] = config.Current.User.Account
+	} else {
+		params = map[string]interface{}{
+			"account": config.Current.User.Account,
+		}
+	}
 	operation := Operation{
 		UUID:      c.UUID,
 		User:      config.Current.User.Account,
