@@ -112,7 +112,8 @@ export default {
           this.percentage = 100
         } else {
           let pct = ((this.limit - (this.flow.rx + this.flow.tx)) / this.limit) * 100
-          this.percentage = pct < 0 ? 0 : pct > 100 ? 100 : pct.toFixed(1)
+          pct = pct < 0 ? 0 : pct > 100 ? 100 : pct.toFixed(1)
+          this.percentage = Number(pct)
         }
         this.loading = false
       }).catch(() => {
