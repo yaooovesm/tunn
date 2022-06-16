@@ -186,7 +186,10 @@ func ApiResetRoutes(ctx *gin.Context) {
 // @param ctx
 //
 func ApiGetUserFlowFromServer(ctx *gin.Context) {
-	if application.Current == nil || !application.Current.Running {
+	if application.Current == nil ||
+		!application.Current.Running ||
+		application.Current.Serv == nil ||
+		application.Current.Serv.AuthClient == nil {
 		responseError(ctx, errors.New("没有运行中的客户端"), "")
 		return
 	}

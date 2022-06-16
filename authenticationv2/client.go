@@ -397,6 +397,7 @@ func (c *Client) Message(msg string) (err error) {
 // @param params
 //
 func (c *Client) Operation(name OperationName, params map[string]interface{}) (OperationResult, error) {
+	defer c.bucket.Leave()
 	err := c.bucket.Occupy()
 	if err != nil {
 		return OperationResult{}, err
@@ -430,7 +431,6 @@ func (c *Client) Operation(name OperationName, params map[string]interface{}) (O
 	//60秒超时
 	return res, timer.TimeoutTask(func() error {
 		res = <-c.opsig
-		c.bucket.Leave()
 		return nil
 	}, time.Minute)
 }
