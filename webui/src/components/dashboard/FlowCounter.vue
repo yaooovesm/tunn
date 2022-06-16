@@ -8,13 +8,16 @@
 
       <el-popover
           placement="bottom"
-          :width="200"
+          :width="300"
           :hide-after="0"
-          title="流量统计详情"
+          :title="error?'':'流量统计详情'"
           trigger="hover"
       >
         <template #default>
-          <div>
+          <div v-if="error" v-loading="loading">
+            <div style="font-size: 12px;padding: 10px;color: #bbbbbb;text-align: center">无数据</div>
+          </div>
+          <div v-else v-loading="loading">
             <div class="detail-unit">
               <span>发送流量 </span>
               {{ $utils.FormatBytesSizeM(flow.tx) }}
@@ -36,29 +39,52 @@
               <span>流量剩余 </span>
               {{ limit === 0 ? "无限制" : $utils.FormatBytesSizeM(limit - (flow.rx + flow.tx)) }}
             </div>
+            <el-divider style="margin-top: 10px;margin-bottom: 10px"/>
+            <div class="detail-unit">
+              <span style="color: #909399">
+                更新于
+              {{ $utils.FormatDate("YYYY/mm/dd HH:MM:SS", updateTime) }}
+              </span>
+              <el-button text
+                         style="font-size: 12px;height: 12px;line-height: 13px;padding: 8px 2px;transform: translateY(-1px);float: right"
+                         @click="update">刷新
+              </el-button>
+            </div>
           </div>
         </template>
         <template #reference>
-          <div style="padding: 20px 20px 20px;">
-            <el-progress :color="customColors" :percentage="percentage">
-              <template #default="{ percentage }">
-                <div style="font-size: 12px;color: #909399">
-                  <span v-if="this.limit!==0">剩余 {{ percentage }}% 可用</span>
-                  <span v-else>无限制</span>
-                </div>
-              </template>
+          <div style="padding: 20px 20px 30px;">
+            <el-progress :color="customColors" :percentage="percentage" :show-text="false">
+              <!--              <template #default="{ percentage }">-->
+              <!--                <div style="font-size: 12px;color: #909399">-->
+              <!--                  <div v-if="error">-->
+              <!--                    <span>无数据</span>-->
+              <!--                  </div>-->
+              <!--                  <div v-else>-->
+              <!--                    <span v-if="this.limit!==0">剩余 {{ percentage }}% 可用</span>-->
+              <!--                    <span v-else>无限制</span>-->
+              <!--                  </div>-->
+              <!--                </div>-->
+              <!--              </template>-->
             </el-progress>
+            <div style="color: #909399;font-size: 12px;text-align: left">
+              <div v-if="!error && limit !== 0" style="margin-top: 3px">
+                可用流量 <span style="color: #007bbb">{{
+                  $utils.FormatBytesSizeM(limit - (flow.rx + flow.tx)).replaceAll("M", "")
+                }} </span>M ({{ percentage }}%)
+              </div>
+              <div v-else style="margin-top: 3px">
+                <span v-if="error">
+                  无数据
+                </span>
+                <span v-else>
+                  流量无限制
+                </span>
+              </div>
+            </div>
           </div>
         </template>
       </el-popover>
-      <div style="font-size: 12px;color: #808080;text-align: right;padding: 5px 10px">
-        <!--        更新于-->
-        <!--        {{ $utils.FormatDate("YYYY/mm/dd HH:MM:SS", updateTime) }}&nbsp;-->
-        <el-button text
-                   style="font-size: 12px;height: 12px;line-height: 13px;padding: 8px 2px;transform: translateY(-1px)"
-                   @click="update">刷新
-        </el-button>
-      </div>
     </el-card>
 
   </div>
@@ -101,6 +127,7 @@ export default {
   },
   methods: {
     update: function () {
+      this.loading = true
       axios({
         method: "get",
         url: "/api/remote/flow",
@@ -115,8 +142,14 @@ export default {
           pct = pct < 0 ? 0 : pct > 100 ? 100 : pct.toFixed(1)
           this.percentage = Number(pct)
         }
+        this.error = false
         this.loading = false
       }).catch(() => {
+        this.percentage = 0
+        this.flow = {
+          rx: 0,
+          tx: 0
+        }
         this.error = true
         this.loading = false
       })

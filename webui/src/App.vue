@@ -56,13 +56,13 @@ export default {
   text-align: left;
   border-left: solid 8px rgba(0, 123, 187, 0.8);
   padding-left: 20px;
-  height: 25px;
+  height: 23px;
   line-height: 25px;
   margin-bottom: 50px;
 }
 
 .title-text {
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .circle {
