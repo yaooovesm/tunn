@@ -177,12 +177,12 @@ export default {
         url: "/api/application/stop",
         data: {}
       }).then(() => {
-        this.$emit("updateCounter")
       }).catch((err) => {
         this.$utils.HandleError(err)
       }).finally(() => {
         setTimeout(() => {
           this.check(false)
+          this.$emit("updateCounter")
         }, 1500)
       })
     },
@@ -213,13 +213,13 @@ export default {
           }
         }
       }).then(() => {
-        this.$emit("updateCounter")
       }).catch((err) => {
         this.loading = false
         this.$utils.HandleError(err)
       }).finally(() => {
         setTimeout(() => {
           this.check(false)
+          this.$emit("updateCounter")
         }, 1500)
       })
     },

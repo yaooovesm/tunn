@@ -14,7 +14,7 @@
             <el-col :xs="24" :sm="24" :md="8" :lg="6" :xl="6">
               <el-row :gutter="10">
                 <el-col :span="24">
-                  <login-box ref="login_box" @updated="updateOverview" @updateCounter="$refs.flow_counter.update()"/>
+                  <login-box ref="login_box" @updated="updateOverview" @updateCounter="updateCounter"/>
                 </el-col>
                 <el-col :span="24" style="margin-top: 20px">
                   <!--                  <link-overview/>-->
@@ -72,6 +72,10 @@ export default {
     //clearInterval(this.timer)
   },
   methods: {
+    updateCounter: function () {
+      console.log("update")
+      this.$refs.flow_counter.update()
+    },
     updateOverview: function () {
       this.$refs.overview.update()
     },

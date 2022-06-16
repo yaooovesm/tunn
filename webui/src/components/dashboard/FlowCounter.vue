@@ -2,7 +2,7 @@
   <div>
     <el-card shadow="always" body-style="padding:0" v-loading="loading">
       <div class="title" style="margin-top: 20px;margin-bottom: 7px;">
-        <div class="title-text">流量表
+        <div class="title-text">流量
         </div>
       </div>
 
@@ -15,10 +15,15 @@
       >
         <template #default>
           <div v-if="error" v-loading="loading">
-            <div style="font-size: 12px;padding: 10px;color: #bbbbbb;text-align: center">无数据</div>
+            <div style="font-size: 12px;padding: 10px;color: #bbbbbb;text-align: center">无数据
+              <el-button text
+                         style="font-size: 12px;height: 12px;line-height: 13px;padding: 8px 2px;transform: translateY(-1px);"
+                         @click="update">刷新
+              </el-button>
+            </div>
           </div>
           <div v-else v-loading="loading">
-            <div class="detail-unit">
+            <div class="detail-unit" style="margin-top: 25px;">
               <span>发送流量 </span>
               {{ $utils.FormatBytesSizeM(flow.tx) }}
             </div>
@@ -37,9 +42,12 @@
             </div>
             <div class="detail-unit">
               <span>流量剩余 </span>
-              {{ limit === 0 ? "无限制" : $utils.FormatBytesSizeM(limit - (flow.rx + flow.tx)) }}
+              {{ limit === 0 ? "无限制" : $utils.FormatBytesSizeM(limit - flow.rx) }}
             </div>
             <el-divider style="margin-top: 10px;margin-bottom: 10px"/>
+            <div style="font-size: 12px;text-align: left;color: #909399;margin-bottom: 10px">
+              记录间隔1分钟
+            </div>
             <div class="detail-unit">
               <span style="color: #909399">
                 更新于
@@ -70,7 +78,7 @@
             <div style="color: #909399;font-size: 12px;text-align: left">
               <div v-if="!error && limit !== 0" style="margin-top: 3px">
                 可用流量 <span style="color: #007bbb">{{
-                  $utils.FormatBytesSizeM(limit - (flow.rx + flow.tx)).replaceAll("M", "")
+                  $utils.FormatBytesSizeM(limit - flow.rx).replaceAll("M", "")
                 }} </span>M ({{ percentage }}%)
               </div>
               <div v-else style="margin-top: 3px">
@@ -134,14 +142,17 @@ export default {
         data: {}
       }).then(res => {
         let response = res.data
-        this.flow = response.data
+        this.flow = response.data.flow
+        this.limit = response.data.limit.flow
         if (this.limit === 0) {
           this.percentage = 100
         } else {
-          let pct = ((this.limit - (this.flow.rx + this.flow.tx)) / this.limit) * 100
+          this.limit = this.limit * 1024 * 1024
+          let pct = ((this.limit - this.flow.rx) / this.limit) * 100
           pct = pct < 0 ? 0 : pct > 100 ? 100 : pct.toFixed(1)
           this.percentage = Number(pct)
         }
+        this.updateTime = new Date()
         this.error = false
         this.loading = false
       }).catch(() => {
