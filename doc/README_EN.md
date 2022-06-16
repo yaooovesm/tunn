@@ -35,6 +35,13 @@ AES256 / AES192 / AES128 / XOR / SM4 / TEA / XTEA / Salsa20 / Blowfish
 
 ------
 
+2022/06/16 @ 1.1.0.220616
+
+- WebUI remote config
+- WebUI flow usage query
+- WebUI flow limit & speed limit display
+- add reconnection conditions
+
 2022/05/31 @ 1.0.0.220531
 
 - WebUI
