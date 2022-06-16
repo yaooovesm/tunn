@@ -177,6 +177,7 @@ export default {
         url: "/api/application/stop",
         data: {}
       }).then(() => {
+        this.$emit("updateCounter")
       }).catch((err) => {
         this.$utils.HandleError(err)
       }).finally(() => {
@@ -212,7 +213,7 @@ export default {
           }
         }
       }).then(() => {
-
+        this.$emit("updateCounter")
       }).catch((err) => {
         this.loading = false
         this.$utils.HandleError(err)

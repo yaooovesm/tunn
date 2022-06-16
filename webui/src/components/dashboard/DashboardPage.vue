@@ -14,11 +14,11 @@
             <el-col :xs="24" :sm="24" :md="8" :lg="6" :xl="6">
               <el-row :gutter="10">
                 <el-col :span="24">
-                  <login-box ref="login_box" @updated="updateOverview"/>
+                  <login-box ref="login_box" @updated="updateOverview" @updateCounter="$refs.flow_counter.update()"/>
                 </el-col>
                 <el-col :span="24" style="margin-top: 20px">
                   <!--                  <link-overview/>-->
-                  <flow-counter/>
+                  <flow-counter ref="flow_counter"/>
                 </el-col>
               </el-row>
             </el-col>
