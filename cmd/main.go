@@ -20,8 +20,10 @@ var static embed.FS
 func main() {
 	//set GOMAXPROCS
 	cores := runtime.NumCPU()
-	runtime.GOMAXPROCS(cores * 2)
-	fmt.Println("MAXPROCS set to ", cores*4)
+	if cores < 10 {
+		runtime.GOMAXPROCS(10)
+		fmt.Println("MAXPROCS set to 10")
+	}
 	//initialize log
 	logging.Initialize()
 	//load config
