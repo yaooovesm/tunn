@@ -206,7 +206,7 @@ export default {
           },
           auth: {
             address: this.server.address,
-            port: this.server.port
+            port: Number(this.server.port)
           },
           security: {
             cert: this.server.cert
@@ -253,7 +253,7 @@ export default {
           },
           auth: {
             address: this.server.address,
-            port: this.server.port
+            port: Number(this.server.port)
           },
           security: {
             cert: this.server.cert
